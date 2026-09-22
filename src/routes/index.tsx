@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import founderPhoto from "@/assets/founder-velmurugan.jpg";
 import { BrandStrip } from "@/components/BrandStrip";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
@@ -88,6 +89,48 @@ function HomePage() {
               <p className="mt-2 text-sm text-muted-foreground">{step.body}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-card">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1fr_1.3fr]">
+          <div className="panel overflow-hidden">
+            <BrandStrip />
+            <div className="p-6 text-center">
+              <img
+                src={founderPhoto}
+                alt={t("about.founderName")}
+                className="mx-auto h-36 w-36 rounded-full border-4 border-gold object-cover"
+              />
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-secondary">
+                {t("about.founderTitle")}
+              </p>
+              <h3 className="mt-1 font-display text-xl text-primary">{t("about.founderName")}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {t("about.founderBody")}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl text-foreground">{t("about.title")}</h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{t("about.body")}</p>
+            <dl className="mt-8 grid gap-4 sm:grid-cols-2">
+              {[
+                ["about.facts.founded", "about.facts.foundedValue"],
+                ["about.facts.ideology", "about.facts.ideologyValue"],
+                ["about.facts.headquarters", "about.facts.headquartersValue"],
+                ["about.facts.secretary", "about.facts.secretaryValue"],
+              ].map(([labelKey, valueKey]) => (
+                <div key={labelKey} className="panel p-4">
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {t(labelKey)}
+                  </dt>
+                  <dd className="mt-1 text-sm font-medium text-foreground">{t(valueKey)}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </section>
     </SiteLayout>
