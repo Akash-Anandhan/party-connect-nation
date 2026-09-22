@@ -3,7 +3,13 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { useI18n } from "@/i18n";
-import { CARD_PLACEHOLDERS, PREVIEW_VALUES, renderCardTemplate } from "@/lib/card-template";
+import {
+  CARD_PLACEHOLDERS,
+  PREVIEW_VALUES,
+  STARTER_TEMPLATE,
+  downloadCardTemplate,
+  renderCardTemplate,
+} from "@/lib/card-template";
 import { activateTemplate, createTemplate, deleteTemplate, listTemplates } from "@/services/admin";
 
 export function TemplatesManager() {
@@ -99,6 +105,13 @@ export function TemplatesManager() {
           <p className="mt-1 font-mono">
             {CARD_PLACEHOLDERS.map((placeholder) => `{{${placeholder}}}`).join("  ")}
           </p>
+          <button
+            type="button"
+            onClick={() => downloadCardTemplate("card-template-starter", STARTER_TEMPLATE)}
+            className="mt-3 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground"
+          >
+            {t("admin.templates.downloadStarter")}
+          </button>
         </div>
 
         <button
@@ -132,6 +145,13 @@ export function TemplatesManager() {
                 </span>
               ) : null}
               <span className="ml-auto flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadCardTemplate(template.name, template.html)}
+                  className="rounded-md border border-border px-3 py-1.5 text-xs font-medium"
+                >
+                  {t("admin.templates.download")}
+                </button>
                 <button
                   type="button"
                   onClick={() => setPreviewId(previewId === template.id ? null : template.id)}

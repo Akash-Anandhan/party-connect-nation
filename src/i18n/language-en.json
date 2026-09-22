@@ -132,6 +132,8 @@
       "active": "Active",
       "preview": "Preview",
       "closePreview": "Close preview",
+      "download": "Download",
+      "downloadStarter": "Download starter template",
       "delete": "Delete",
       "placeholders": "Available placeholders",
       "saved": "Template saved",

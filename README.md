@@ -117,7 +117,10 @@ Cards are never stored as images: the active template plus live database data ar
 in the browser each time, then printed or saved as PDF.
 
 Admins upload templates in **/admin → Card templates** (paste HTML or upload an `.html`
-file), preview them with sample data, and set exactly one template active.
+file), preview them with sample data, and set exactly one template active. A **Download
+starter template** button hands an admin a commented base file that uses every placeholder,
+and any saved template can be downloaded back as `.html` — both make it easy to develop new
+card designs.
 
 ---
 
