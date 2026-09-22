@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EnrollRouteImport } from './routes/enroll'
 import { Route as ApiPublicPhotoTokenRouteImport } from './routes/api/public/photo.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnrollRoute = EnrollRouteImport.update({
+  id: '/enroll',
+  path: '/enroll',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPhotoTokenRoute = ApiPublicPhotoTokenRouteImport.update({
@@ -25,27 +31,31 @@ const ApiPublicPhotoTokenRoute = ApiPublicPhotoTokenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/enroll': typeof EnrollRoute
   '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/enroll': typeof EnrollRoute
   '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/enroll': typeof EnrollRoute
   '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/photo/$token'
+  fullPaths: '/' | '/enroll' | '/api/public/photo/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/photo/$token'
-  id: '__root__' | '/' | '/api/public/photo/$token'
+  to: '/' | '/enroll' | '/api/public/photo/$token'
+  id: '__root__' | '/' | '/enroll' | '/api/public/photo/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EnrollRoute: typeof EnrollRoute
   ApiPublicPhotoTokenRoute: typeof ApiPublicPhotoTokenRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enroll': {
+      id: '/enroll'
+      path: '/enroll'
+      fullPath: '/enroll'
+      preLoaderRoute: typeof EnrollRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/photo/$token': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EnrollRoute: EnrollRoute,
   ApiPublicPhotoTokenRoute: ApiPublicPhotoTokenRoute,
 }
 export const routeTree = rootRouteImport
