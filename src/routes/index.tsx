@@ -116,12 +116,12 @@ function HomePage() {
             <h2 className="text-2xl text-foreground">{t("about.title")}</h2>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{t("about.body")}</p>
             <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-              {[
+              {([
                 ["about.facts.founded", "about.facts.foundedValue"],
                 ["about.facts.ideology", "about.facts.ideologyValue"],
                 ["about.facts.headquarters", "about.facts.headquartersValue"],
                 ["about.facts.secretary", "about.facts.secretaryValue"],
-              ].map(([labelKey, valueKey]) => (
+              ] as [string, string][]).map(([labelKey, valueKey]: [string, string]) => (
                 <div key={labelKey} className="panel p-4">
                   <dt className="text-xs uppercase tracking-wide text-muted-foreground">
                     {t(labelKey)}

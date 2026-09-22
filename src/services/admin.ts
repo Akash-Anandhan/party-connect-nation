@@ -27,13 +27,13 @@ export async function approveApplication(id: string) {
 export async function rejectApplication(id: string, notes: string | null) {
   const { error } = await supabase.rpc("reject_application", {
     _application_id: id,
-    _notes: notes,
+    ...(notes ? { _notes: notes } : {}),
   });
   if (error) throw error;
 }
 
 export interface MemberWithCard extends Member {
-  member_cards: { public_token: string; issued_at: string }[];
+  member_cards: { public_token: string; issued_at: string } | null;
 }
 
 export async function listMembers(): Promise<MemberWithCard[]> {

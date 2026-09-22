@@ -65,7 +65,7 @@ export function MembersList() {
             </thead>
             <tbody>
               {filtered.map((member) => {
-                const token = member.member_cards?.[0]?.public_token;
+                const token = member.member_cards?.public_token;
                 return (
                   <tr key={member.id} className="border-t border-border">
                     <td className="px-4 py-3 font-medium">{member.full_name}</td>
