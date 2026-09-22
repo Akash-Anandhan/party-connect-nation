@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CardRouteImport } from './routes/card'
 import { Route as EnrollRouteImport } from './routes/enroll'
 import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
@@ -18,6 +19,11 @@ import { Route as ApiPublicPhotoTokenRouteImport } from './routes/api/public/pho
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CardRoute = CardRouteImport.update({
@@ -43,6 +49,7 @@ const ApiPublicPhotoTokenRoute = ApiPublicPhotoTokenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/card': typeof CardRoute
   '/enroll': typeof EnrollRoute
   '/verify/$token': typeof VerifyTokenRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/card': typeof CardRoute
   '/enroll': typeof EnrollRoute
   '/verify/$token': typeof VerifyTokenRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/card': typeof CardRoute
   '/enroll': typeof EnrollRoute
   '/verify/$token': typeof VerifyTokenRoute
@@ -66,12 +75,24 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/card' | '/enroll' | '/verify/$token' | '/api/public/photo/$token'
+    | '/'
+    | '/admin'
+    | '/card'
+    | '/enroll'
+    | '/verify/$token'
+    | '/api/public/photo/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/card' | '/enroll' | '/verify/$token' | '/api/public/photo/$token'
+  to:
+    | '/'
+    | '/admin'
+    | '/card'
+    | '/enroll'
+    | '/verify/$token'
+    | '/api/public/photo/$token'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/card'
     | '/enroll'
     | '/verify/$token'
@@ -80,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CardRoute: typeof CardRoute
   EnrollRoute: typeof EnrollRoute
   VerifyTokenRoute: typeof VerifyTokenRoute
@@ -93,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/card': {
@@ -128,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CardRoute: CardRoute,
   EnrollRoute: EnrollRoute,
   VerifyTokenRoute: VerifyTokenRoute,
