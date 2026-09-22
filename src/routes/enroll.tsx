@@ -9,13 +9,13 @@ import { submitEnrollment } from "@/services/membership";
 export const Route = createFileRoute("/enroll")({
   head: () => ({
     meta: [
-      { title: "Enroll as a Member — Party Membership Portal" },
+      { title: "Enroll as a Member — NLCTVS" },
       {
         name: "description",
         content:
           "Submit your party membership enrollment with your name, phone, address, district, constituency and photo. Tamil Nadu only.",
       },
-      { property: "og:title", content: "Enroll as a Member — Party Membership Portal" },
+      { property: "og:title", content: "Enroll as a Member — NLCTVS" },
       {
         property: "og:description",
         content: "Submit your party membership enrollment for review by the party office.",

@@ -7,13 +7,13 @@ import { useI18n } from "@/i18n";
 export const Route = createFileRoute("/card")({
   head: () => ({
     meta: [
-      { title: "View Your Member Card — Party Membership Portal" },
+      { title: "View Your Member Card — NLCTVS" },
       {
         name: "description",
         content:
           "Enter your membership card code to open, verify, print or download your digital party membership card.",
       },
-      { property: "og:title", content: "View Your Member Card — Party Membership Portal" },
+      { property: "og:title", content: "View Your Member Card — NLCTVS" },
       {
         property: "og:description",
         content: "Open and download your digital party membership card using your card code.",

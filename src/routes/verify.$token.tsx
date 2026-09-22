@@ -12,7 +12,7 @@ export const Route = createFileRoute("/verify/$token")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Membership Verification — Party Membership Portal" },
+      { title: "Membership Verification — NLCTVS" },
       {
         name: "description",
         content:

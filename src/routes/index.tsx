@@ -8,13 +8,13 @@ import { useI18n } from "@/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Party Membership Portal — Enroll & Verify Members" },
+      { title: "NLCTVS Membership — Tamizhaga Vazhvurimai Katchi" },
       {
         name: "description",
         content:
           "Enroll as a party member in Tamil Nadu, get office approval, and receive a verifiable digital membership card with a QR verification code.",
       },
-      { property: "og:title", content: "Party Membership Portal — Enroll & Verify Members" },
+      { property: "og:title", content: "NLCTVS Membership — Tamizhaga Vazhvurimai Katchi" },
       {
         property: "og:description",
         content:
