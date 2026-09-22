@@ -14,16 +14,243 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      card_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          html: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          html: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          html?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_cards: {
+        Row: {
+          id: string
+          issued_at: string
+          member_id: string
+          public_token: string
+          revoked_at: string | null
+        }
+        Insert: {
+          id?: string
+          issued_at?: string
+          member_id: string
+          public_token: string
+          revoked_at?: string | null
+        }
+        Update: {
+          id?: string
+          issued_at?: string
+          member_id?: string
+          public_token?: string
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_cards_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      members: {
+        Row: {
+          address: string
+          application_id: string | null
+          constituency: string
+          created_at: string
+          crf_no: string
+          district: string
+          full_name: string
+          id: string
+          is_active: boolean
+          joined_at: string
+          phone: string
+          photo_path: string | null
+          state: string
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          application_id?: string | null
+          constituency: string
+          created_at?: string
+          crf_no: string
+          district: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          phone: string
+          photo_path?: string | null
+          state?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          application_id?: string | null
+          constituency?: string
+          created_at?: string
+          crf_no?: string
+          district?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          phone?: string
+          photo_path?: string | null
+          state?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "membership_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_applications: {
+        Row: {
+          address: string
+          constituency: string
+          created_at: string
+          district: string
+          full_name: string
+          id: string
+          phone: string
+          photo_path: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string
+          status: string
+        }
+        Insert: {
+          address: string
+          constituency: string
+          created_at?: string
+          district: string
+          full_name: string
+          id?: string
+          phone: string
+          photo_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          status?: string
+        }
+        Update: {
+          address?: string
+          constituency?: string
+          created_at?: string
+          district?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          photo_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_application: { Args: { _application_id: string }; Returns: Json }
+      generate_public_token: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
+      reject_application: {
+        Args: { _application_id: string; _notes?: string }
+        Returns: undefined
+      }
+      verify_card: { Args: { _token: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +377,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "member"],
+    },
   },
 } as const
