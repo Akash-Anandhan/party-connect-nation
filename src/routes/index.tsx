@@ -64,6 +64,7 @@ function HomePage() {
                 ★
               </span>
               <p className="font-display text-2xl text-primary">{t("app.party")}</p>
+              <p className="text-sm font-medium text-foreground">{t("app.fullName")}</p>
               <p className="text-sm text-muted-foreground">{t("app.state")}</p>
             </div>
             <BrandStrip />

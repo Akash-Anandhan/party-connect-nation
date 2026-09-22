@@ -21,7 +21,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               <span className="block font-display text-lg leading-tight text-primary">
                 {t("app.party")}
               </span>
-              <span className="block text-xs text-muted-foreground">{t("app.tagline")}</span>
+              <span className="block text-xs text-muted-foreground">{t("app.fullName")}</span>
             </span>
           </Link>
           <nav className="ml-auto flex flex-wrap items-center gap-1 text-sm">
