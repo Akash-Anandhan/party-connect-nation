@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CardRouteImport } from './routes/card'
+import { Route as EnrollRouteImport } from './routes/enroll'
+import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
+import { Route as ApiPublicPhotoTokenRouteImport } from './routes/api/public/photo.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardRoute = CardRouteImport.update({
+  id: '/card',
+  path: '/card',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnrollRoute = EnrollRouteImport.update({
+  id: '/enroll',
+  path: '/enroll',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyTokenRoute = VerifyTokenRouteImport.update({
+  id: '/verify/$token',
+  path: '/verify/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPhotoTokenRoute = ApiPublicPhotoTokenRouteImport.update({
+  id: '/api/public/photo/$token',
+  path: '/api/public/photo/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/card': typeof CardRoute
+  '/enroll': typeof EnrollRoute
+  '/verify/$token': typeof VerifyTokenRoute
+  '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/card': typeof CardRoute
+  '/enroll': typeof EnrollRoute
+  '/verify/$token': typeof VerifyTokenRoute
+  '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/card': typeof CardRoute
+  '/enroll': typeof EnrollRoute
+  '/verify/$token': typeof VerifyTokenRoute
+  '/api/public/photo/$token': typeof ApiPublicPhotoTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/card'
+    | '/enroll'
+    | '/verify/$token'
+    | '/api/public/photo/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/card'
+    | '/enroll'
+    | '/verify/$token'
+    | '/api/public/photo/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/card'
+    | '/enroll'
+    | '/verify/$token'
+    | '/api/public/photo/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CardRoute: typeof CardRoute
+  EnrollRoute: typeof EnrollRoute
+  VerifyTokenRoute: typeof VerifyTokenRoute
+  ApiPublicPhotoTokenRoute: typeof ApiPublicPhotoTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/card': {
+      id: '/card'
+      path: '/card'
+      fullPath: '/card'
+      preLoaderRoute: typeof CardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enroll': {
+      id: '/enroll'
+      path: '/enroll'
+      fullPath: '/enroll'
+      preLoaderRoute: typeof EnrollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$token': {
+      id: '/verify/$token'
+      path: '/verify/$token'
+      fullPath: '/verify/$token'
+      preLoaderRoute: typeof VerifyTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/photo/$token': {
+      id: '/api/public/photo/$token'
+      path: '/api/public/photo/$token'
+      fullPath: '/api/public/photo/$token'
+      preLoaderRoute: typeof ApiPublicPhotoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CardRoute: CardRoute,
+  EnrollRoute: EnrollRoute,
+  VerifyTokenRoute: VerifyTokenRoute,
+  ApiPublicPhotoTokenRoute: ApiPublicPhotoTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
