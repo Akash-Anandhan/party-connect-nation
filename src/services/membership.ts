@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/external/client";
 import { FIXED_STATE, PHOTO_BUCKET } from "@/lib/constants";
 import type { Tables } from "@/integrations/supabase/types";
 
