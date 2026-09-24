@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI local state
+supabase/.temp/
+
+# This project uses Bun (bun.lock) — don't commit npm's lockfile
+package-lock.json

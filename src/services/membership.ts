@@ -86,8 +86,9 @@ export async function fetchActiveTemplate(): Promise<CardTemplate | null> {
 export function memberPhotoUrl(token: string): string {
   if (import.meta.env.BASE_URL === "/") return `/api/public/photo/${token}`;
 
-  // `VITE_SUPABASE_URL` is a Lovable proxy that does not serve `/functions/v1`,
-  // so build the Edge Function origin from the project id instead.
+  // Build the Edge Function origin from the project id so photo URLs always
+  // hit the project's own `supabase.co` domain, whatever shape
+  // `VITE_SUPABASE_URL` has (direct URL, proxy, custom domain).
   const origin = `https://${import.meta.env["VITE_SUPABASE_PROJECT_ID"]}.supabase.co`;
   const query = `?token=${encodeURIComponent(token)}`;
   return `${origin}/functions/v1/card-photo${query}`;

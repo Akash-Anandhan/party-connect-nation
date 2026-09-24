@@ -105,16 +105,19 @@ the Pages workflow):
 ```bash
 npm i -g supabase                      # install the Supabase CLI
 supabase login
-supabase link --project-ref smovihxezkxnggrmvntz
+supabase link --project-ref iczivwdmqndqxtjifbjm
 supabase functions deploy card-photo --no-verify-jwt
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<service role key>
 ```
 
-- Take the key from **Dashboard → Project Settings → API keys**.
+**No secrets to set.** The platform injects `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` into every function by default — and names
+starting with `SUPABASE_` are reserved, so `supabase secrets set` refuses
+them on purpose (the Dashboard rejects them too).
+
 - `--no-verify-jwt` is required (see above) and the endpoint still only returns
   a photo for a valid, unrevoked token.
-- **Never** put `SUPABASE_SERVICE_ROLE_KEY` in `.env` or commit it — it lives
-  only in Supabase's encrypted function secrets.
+- **Never** put the `service_role` key in `.env`, in docs, or in any file that
+  could be committed — it bypasses RLS.
 
 ---
 

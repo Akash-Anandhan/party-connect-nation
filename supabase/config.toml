@@ -1,4 +1,4 @@
-project_id = "smovihxezkxnggrmvntz"
+project_id = "iczivwdmqndqxtjifbjm"
 
 # Public photo proxy used by the static (GitHub Pages) build.
 # verify_jwt must be false: the card loads it with <img src>, which cannot
