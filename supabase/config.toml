@@ -1,1 +1,8 @@
 project_id = "smovihxezkxnggrmvntz"
+
+# Public photo proxy used by the static (GitHub Pages) build.
+# verify_jwt must be false: the card loads it with <img src>, which cannot
+# attach an Authorization header. The endpoint still only exposes a photo for a
+# valid, unrevoked card token, exactly like /api/public/photo/:token.
+[functions.card-photo]
+verify_jwt = false
