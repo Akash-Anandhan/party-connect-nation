@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import partyFlag from "@/assets/favicon.jpeg";
 import { BrandStrip } from "./BrandStrip";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useI18n } from "@/i18n";
@@ -14,9 +15,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-4">
           <Link to="/" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-gold bg-primary font-display text-lg text-primary-foreground">
-              ★
-            </span>
+            <img
+              src={partyFlag}
+              alt={t("app.party")}
+              className="h-11 w-11 rounded-full border-2 border-gold object-cover"
+            />
             <span>
               <span className="block font-display text-lg leading-tight text-primary">
                 {t("app.party")}

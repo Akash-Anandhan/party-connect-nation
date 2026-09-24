@@ -12,15 +12,21 @@ import { defineConfig, type LovableViteTanstackOptions } from "@lovable.dev/vite
  * instead: Nitro is skipped, TanStack Start switches to SPA mode and the Vite
  * base path is pointed at `/<repo>/` (where GitHub Pages serves a project site).
  *
+ * Set `CUSTOM_DOMAIN=1` as well (GitHub Pages custom domain) to use `/` instead:
+ * a custom domain serves the site from the root, so a `/<repo>/` prefix would
+ * 404 every asset and leave the page blank.
+ *
  * Left unset, the normal Cloudflare/server build is untouched — so Lovable's
  * deploy keeps working exactly as before.
  */
 const staticBuild = process.env["GH_PAGES"] === "1";
+const customDomain = process.env["CUSTOM_DOMAIN"] === "1";
 
 /** GitHub Pages project sites are served from https://<owner>.github.io/<repo>/ */
 const repoName =
   process.env["GITHUB_REPOSITORY"]?.split("/")[1]?.trim() || "party-connect-nation";
-const base = `/${repoName}/`;
+/** Custom domains serve from the root; project sites from /<repo>/. */
+const base = customDomain ? "/" : `/${repoName}/`;
 
 const options: LovableViteTanstackOptions = {
   tanstackStart: {
@@ -36,7 +42,8 @@ const options: LovableViteTanstackOptions = {
 
   vite: {
     // `base` also feeds TanStack Start's router `basepath`, so no manual
-    // basepath is needed in src/router.tsx.
+    // basepath is needed in src/router.tsx (it becomes a no-op "/" for a
+    // custom domain).
     ...(staticBuild ? { base } : {}),
     server: {
       // Port 8080 is reserved/occupied on Windows (excluded port range + System

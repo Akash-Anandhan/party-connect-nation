@@ -22,8 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Tells vite.config.ts to emit a fully static site (no Nitro/server)
-      # served from /<repo>/ instead of a Cloudflare worker.
+      # instead of a Cloudflare worker.
       GH_PAGES: "1"
+      # Custom domain: the site is served from the root, so build with base "/".
+      # Set back to "0" to revert to the /<repo>/ project-site base.
+      CUSTOM_DOMAIN: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
