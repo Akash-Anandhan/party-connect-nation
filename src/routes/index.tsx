@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import founderPhoto from "@/assets/founder-velmurugan.jpg";
+import partyFlag from "@/assets/favicon.jpeg";
 import { BrandStrip } from "@/components/BrandStrip";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
@@ -61,9 +62,11 @@ function HomePage() {
           <div className="panel overflow-hidden">
             <BrandStrip />
             <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
-              <span className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-gold bg-primary font-display text-4xl text-primary-foreground">
-                ★
-              </span>
+              <img
+                src={partyFlag}
+                alt={t("app.party")}
+                className="h-24 w-24 rounded-full border-4 border-gold object-cover"
+              />
               <p className="font-display text-2xl text-primary">{t("app.party")}</p>
               <p className="text-sm font-medium text-foreground">{t("app.fullName")}</p>
               <p className="text-sm text-muted-foreground">{t("app.state")}</p>
