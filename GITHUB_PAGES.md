@@ -12,7 +12,7 @@ the build now has a second, fully static mode, plus a workflow that deploys it.
 
 | File | Change |
 | --- | --- |
-| `vite.config.ts` | New `GH_PAGES=1` mode: enables TanStack Start **SPA mode** (prerendered shell, hydrated on the client), skips **Nitro** entirely, and sets Vite `base` to `/<repo>/` (GitHub Pages serves project sites from `https://<owner>.github.io/<repo>/`). The base also feeds TanStack's router `basepath`, so no manual basepath is needed. Default build (no `GH_PAGES`) is unchanged — Lovable's deploy keeps working. |
+| `vite.config.ts` | New `GH_PAGES=1` mode: enables TanStack Start **SPA mode** (prerendered shell, hydrated on the client), skips **Nitro** entirely, and sets Vite `base` to `/<repo>/` (GitHub Pages serves project sites from `https://<owner>.github.io/<repo>/`). Adding `CUSTOM_DOMAIN=1` sets `base` to `/` instead — a custom domain serves the site from the root, so a `/<repo>/` prefix would 404 every asset and leave the page blank. The base also feeds TanStack's router `basepath`, so no manual basepath is needed. Default build (no `GH_PAGES`) is unchanged — Lovable's deploy keeps working. |
 | `scripts/static-fallback.mjs` | New. SPA mode emits one `_shell.html`; this copies it to `index.html` (site root) and `404.html` (deep-link fallback, so `/verify/<token>` QR links boot the app instead of dying on a 404 page). Runs as `postbuild`; no-ops unless `GH_PAGES=1`. |
 | `package.json` | Added `"postbuild": "node scripts/static-fallback.mjs"`. |
 | `src/routes/__root.tsx` | Favicon link now uses `import.meta.env.BASE_URL` so it resolves under `/<repo>/`. |
@@ -21,7 +21,7 @@ the build now has a second, fully static mode, plus a workflow that deploys it.
 
 | File | Change |
 | --- | --- |
-| `.github/workflows/deploy-pages.yml` | New. On push to `main`/`Akash` (or manual `workflow_dispatch`): checkout → set up Bun → `bun install --frozen-lockfile` → `GH_PAGES=1 bun run build` → run `static-fallback` → verify `dist/client/index.html` + `404.html` exist → upload `dist/client` → deploy with `actions/deploy-pages@v4`. Permissions: `contents: read`, `pages: write`, `id-token: write`. |
+| `.github/workflows/deploy-pages.yml` | New. On push to `main`/`Akash` (or manual `workflow_dispatch`): checkout → set up Bun → `bun install --frozen-lockfile` → `GH_PAGES=1 CUSTOM_DOMAIN=1 bun run build` → run `static-fallback` → verify `dist/client/index.html` + `404.html` exist → upload `dist/client` → deploy with `actions/deploy-pages@v4`. Permissions: `contents: read`, `pages: write`, `id-token: write`. Set the workflow's `CUSTOM_DOMAIN` env back to `"0"` to return to the `/<repo>/` project-site base. |
 
 ### Member photos (server route → Supabase Edge Function)
 
@@ -86,7 +86,23 @@ Pushing in Step 1 triggers it automatically. To run it manually:
 
 Wait for both the `build` and `deploy` jobs to turn green (first run ≈ 2–3 min).
 
-### Step 4 — Get the site URL
+### Step 4 — Custom domain (optional)
+
+A custom domain added under **Settings → Pages → Custom domain** serves the
+site from the **root** `/`, not `/<repo>/`. That is why the workflow builds
+with `CUSTOM_DOMAIN: "1"` → Vite `base = "/"`:
+
+- DNS (`A`/`CNAME` records) must point at GitHub Pages — DNS succeeding with a
+  blank page means the build base was wrong, not the DNS.
+- With a custom domain active, GitHub redirects the old
+  `https://akash-anandhan.github.io/party-connect-nation/` URL to it, so the
+  root base breaks nothing.
+- Once DNS is verified, enable **Enforce HTTPS** in the same settings panel.
+- QR codes embed `window.location.origin` at generation time — cards printed
+  under the old `github.io` URL should be re-printed from the site on the
+  custom domain.
+
+### Step 5 — Get the site URL
 
 **Settings → Pages** (or the `deploy` job's `page_url` output):
 
@@ -97,7 +113,7 @@ https://akash-anandhan.github.io/party-connect-nation/
 If it 404s right after the first deploy, wait ~1 minute and hard-refresh
 (`Ctrl+Shift+R`).
 
-### Step 5 — Deploy the photo Edge Function
+### Step 6 — Deploy the photo Edge Function
 
 Member photos on the verification page need the Edge Function (not covered by
 the Pages workflow):
