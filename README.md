@@ -161,18 +161,60 @@ stores the choice in `localStorage`. Database content is stored language-indepen
 ## 9. Running and deploying
 
 ```bash
-npm install
-npm run dev      # local development
-npm run build    # production build
+bun install                # or: npm install
+bun run dev                # local development (http://localhost:5173)
+bun run build              # production build -> server (Cloudflare) output
+GH_PAGES=1 bun run build   # fully static build -> dist/client/ for GitHub Pages
 ```
+
+### 9.1 Default build — server
 
 This project is built on TanStack Start, which renders pages on the server and exposes the
 `/api/public/photo/:token` endpoint. Publishing from Lovable deploys both the site and that
-endpoint, with a custom domain available in project settings.
+endpoint, with a custom domain available in project settings. `bun run build` writes a Nitro
+worker to `.output/`.
 
-If the site must be hosted as pure static files (e.g. GitHub Pages), the only server-side
-piece is the photo endpoint — replace it with a storage-served image URL before exporting,
-since static hosts cannot run server routes.
+### 9.2 Static build — GitHub Pages
+
+GitHub Pages serves static files only and cannot run a server, so `GH_PAGES=1` reconfigures
+the build:
+
+| | `bun run build` | `GH_PAGES=1 bun run build` |
+| --- | --- | --- |
+| Nitro server | yes (`.output/`) | skipped |
+| Mode | SSR | SPA, prerendered shell |
+| Output | `.output/` | `dist/client/` |
+| Base path | `/` | `/<repo>/` |
+| Member photo | `/api/public/photo/:token` | `card-photo` Edge Function |
+
+`postbuild` (`scripts/static-fallback.mjs`) republishes the shell as `index.html` and
+`404.html`. GitHub Pages has no SPA rewrite rules, so any unknown path must be answered by
+`404.html` for deep links like `/verify/<token>` to boot the router.
+
+Deploy automatically with `.github/workflows/deploy-pages.yml`:
+
+1. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Push to `main` (or `Akash`), or run the workflow manually.
+3. The site lands at `https://<owner>.github.io/<repo>/`.
+
+No build secrets are required: `.env` already carries the `VITE_*` values, which are public
+by design (they ship in the browser bundle either way). Never add `SUPABASE_SERVICE_ROLE_KEY`
+to `.env`.
+
+### 9.3 Member photos on static hosting
+
+`/api/public/photo/:token` cannot run on a static host, so the static build points
+`memberPhotoUrl()` at the `card-photo` Supabase Edge Function instead — same token check, same
+private bucket, same 5-minute signed URL. Deploy it once with the Supabase CLI:
+
+```bash
+supabase login
+supabase functions deploy card-photo --no-verify-jwt
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your service role key>
+```
+
+`verify_jwt` must stay off: the card loads the photo with `<img src>`, which cannot attach an
+`Authorization` header. The endpoint still only returns a photo for a valid, unrevoked token.
 
 ---
 
