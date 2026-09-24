@@ -210,8 +210,11 @@ private bucket, same 5-minute signed URL. Deploy it once with the Supabase CLI:
 ```bash
 supabase login
 supabase functions deploy card-photo --no-verify-jwt
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your service role key>
 ```
+
+No secrets to set: the platform injects `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` into every function by default, and names
+starting with `SUPABASE_` are reserved — `supabase secrets set` refuses them.
 
 `verify_jwt` must stay off: the card loads the photo with `<img src>`, which cannot attach an
 `Authorization` header. The endpoint still only returns a photo for a valid, unrevoked token.

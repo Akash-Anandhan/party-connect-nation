@@ -11,7 +11,9 @@
 //
 // Deploy:
 //   supabase functions deploy card-photo --no-verify-jwt
-//   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your service role key>
+// No secrets to set: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected
+// by the platform by default (and names starting with SUPABASE_ are reserved —
+// `supabase secrets set` refuses them on purpose).
 // ---------------------------------------------------------------------------
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -23,7 +25,29 @@ const TOKEN_PATTERN = /^[A-Za-z0-9]{6,64}$/;
 const SIGNED_URL_TTL_SECONDS = 300;
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+/**
+ * Admin key used to read the private bucket and bypass RLS.
+ * Prefers the platform-injected legacy `SUPABASE_SERVICE_ROLE_KEY` and falls
+ * back to the injected `SUPABASE_SECRET_KEYS` dictionary (new-style projects).
+ */
+function resolveAdminKey(): string {
+  const legacy = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (legacy) return legacy;
+
+  const dictionary = Deno.env.get("SUPABASE_SECRET_KEYS");
+  if (dictionary) {
+    try {
+      const keys = JSON.parse(dictionary) as Record<string, string>;
+      if (keys["default"]) return keys["default"];
+    } catch {
+      // malformed dictionary — fall through to the error below
+    }
+  }
+  return "";
+}
+
+const SERVICE_ROLE_KEY = resolveAdminKey();
 
 function withCors(response: Response): Response {
   const headers = new Headers(response.headers);
@@ -54,7 +78,7 @@ function serverError(message: string): Response {
   });
 }
 
-Deno.serve((request) => {
+Deno.serve(async (request) => {
   // Pre-flight support, in case a page ever reads the image via fetch().
   if (request.method === "OPTIONS") {
     return withCors(new Response(null, { status: 204 }));
@@ -63,7 +87,7 @@ Deno.serve((request) => {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     return withCors(
       serverError(
-        "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — run `supabase secrets set`.",
+        "Missing SUPABASE_URL or admin API key — both are injected by the platform; check the function environment.",
       ),
     );
   }
