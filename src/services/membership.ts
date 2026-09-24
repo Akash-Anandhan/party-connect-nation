@@ -78,17 +78,20 @@ export async function fetchActiveTemplate(): Promise<CardTemplate | null> {
 /**
  * Public URL that streams a member photo through a short-lived signed link.
  *
- * The server build resolves the token in `/api/public/photo/:token`. A static
- * build (GitHub Pages) has no server, so it goes through the `card-photo`
- * Supabase Edge Function instead. `BASE_URL` is `"/"` only for the server
- * build, which keeps both deployments correct without a separate flag.
+ * Always resolves via the `card-photo` Supabase Edge Function: it works on a
+ * static host (GitHub Pages), in local dev, and in server builds alike — and
+ * it never needs `SUPABASE_SERVICE_ROLE_KEY` in the app's environment, because
+ * the platform injects that into the function itself. The legacy server route
+ * `/api/public/photo/:token` still exists but is no longer used by the app.
  */
 export function memberPhotoUrl(token: string): string {
-  if (import.meta.env.BASE_URL === "/") return `/api/public/photo/${token}`;
-
-  // Build the Edge Function origin from the project id so photo URLs always
-  // hit the project's own `supabase.co` domain, whatever shape
-  // `VITE_SUPABASE_URL` has (direct URL, proxy, custom domain).
+  // Always go through the `card-photo` Edge Function, in every build mode:
+  // it needs no server runtime (GitHub Pages), and the service-role key stays
+  // inside Supabase instead of having to live in the server's environment.
+  //
+  // Build the origin from the project id so photo URLs always hit the
+  // project's own `supabase.co` domain, whatever shape `VITE_SUPABASE_URL`
+  // has (direct URL, proxy, custom domain).
   const origin = `https://${import.meta.env["VITE_SUPABASE_PROJECT_ID"]}.supabase.co`;
   const query = `?token=${encodeURIComponent(token)}`;
   return `${origin}/functions/v1/card-photo${query}`;
