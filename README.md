@@ -4,6 +4,8 @@ A bilingual (English / Tamil) party membership portal: public enrollment, admin 
 approval-driven member and card creation, HTML card templates, and QR-based public
 verification.
 
+**Live site:** https://www.nlctvs.us.ci/
+
 Stack: React 19 + TypeScript + TanStack Start (file-based routing, SSR + server routes),
 Tailwind CSS v4, and Lovable Cloud (Supabase: Postgres, Auth, Storage).
 
@@ -17,10 +19,9 @@ Tailwind CSS v4, and Lovable Cloud (Supabase: Postgres, Auth, Storage).
 | `/enroll` | public | Enrollment form (state fixed to Tamil Nadu) |
 | `/card` | public | Enter a card code to open a membership card |
 | `/verify/:token` | public | Card verification + rendered card (QR target) |
-| `/admin` | admin only | Login, pending applications, members, card templates |
 | `/api/public/photo/:token` | public | Streams a member photo via a short-lived signed URL |
 
-There is no admin link anywhere in the public site — `/admin` must be typed manually.
+The review/management console is not linked from anywhere in the public site.
 
 ---
 
@@ -116,7 +117,7 @@ member's data; unknown placeholders render as empty text, and all values are HTM
 Cards are never stored as images: the active template plus live database data are rendered
 in the browser each time, then printed or saved as PDF.
 
-Admins upload templates in **/admin → Card templates** (paste HTML or upload an `.html`
+Admins upload templates from the card-templates manager (paste HTML or upload an `.html`
 file), preview them with sample data, and set exactly one template active. A **Download
 starter template** button hands an admin a commented base file that uses every placeholder,
 and any saved template can be downloaded back as `.html` — both make it easy to develop new
@@ -145,7 +146,7 @@ select id, 'admin' from auth.users where email = 'admin@example.com'
 on conflict do nothing;
 ```
 
-3. Go to `/admin` and sign in. Accounts without the `admin` role are refused, both in the UI
+3. Sign in with that account. Accounts without the `admin` role are refused, both in the UI
    and by every RLS policy.
 
 ---
@@ -195,7 +196,10 @@ Deploy automatically with `.github/workflows/deploy-pages.yml`:
 
 1. Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Push to `main` (or `Akash`), or run the workflow manually.
-3. The site lands at `https://<owner>.github.io/<repo>/`.
+3. The site lands at the custom domain: `https://www.nlctvs.us.ci/`
+   (a custom domain serves from the root, so the workflow builds with
+   `CUSTOM_DOMAIN: "1"` → Vite `base = "/"`). Without a custom domain it would be
+   `https://<owner>.github.io/<repo>/`.
 
 No build secrets are required: `.env` already carries the `VITE_*` values, which are public
 by design (they ship in the browser bundle either way). Never add `SUPABASE_SERVICE_ROLE_KEY`
@@ -232,7 +236,7 @@ src/
   i18n/              language-en.json, language-ta.json, provider
   integrations/      generated backend client and types
   lib/               constants, card template engine, QR, formatting
-  routes/            file-based routes (public pages, /admin, api)
+  routes/            file-based routes (public pages, api)
   services/          database access: membership.ts (public), admin.ts (admin)
 drizzle/migrations/  SQL schema, policies and functions
 ```
