@@ -26,7 +26,8 @@
     "home": "Home",
     "enroll": "Enroll Member",
     "card": "View Member Card",
-    "language": "Language"
+    "language": "Language",
+    "menu": "Menu"
   },
   "home": {
     "eyebrow": "Official Membership Enrollment",
