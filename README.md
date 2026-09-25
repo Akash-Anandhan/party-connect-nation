@@ -38,12 +38,13 @@ Roles are never stored on `profiles`. Checked through the `SECURITY DEFINER` fun
 
 **`membership_applications`** — enrollment submissions.
 `full_name`, `phone` (10 digits, CHECK), `address`, `district`, `state`
-(CHECK `= 'Tamil Nadu'`), `constituency`, `photo_path`, `status`
+(CHECK `= 'Tamil Nadu'`), `constituency`, `date_of_birth` (DATE, CHECK 18+), `photo_path`, `status`
 (CHECK `pending | approved | rejected`, default `pending`), `review_notes`,
 `reviewed_by`, `reviewed_at`. Indexed on `(status, created_at)`.
 
 **`members`** — approved members only. `application_id` (unique FK), optional `user_id`
-(unique), `crf_no` (unique, generated), personal fields, `photo_path`, `is_active`, `joined_at`.
+(unique), `crf_no` (unique, generated), personal fields (including `date_of_birth`, copied
+from the application on approval), `photo_path`, `is_active`, `joined_at`.
 
 **`member_cards`** — one card per member. `member_id` (unique FK, cascade),
 `public_token` (unique, cryptographically random 14 chars), `issued_at`, `revoked_at`.

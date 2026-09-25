@@ -28,6 +28,7 @@ export const Route = createFileRoute("/enroll")({
 interface FieldErrors {
   fullName?: string;
   phone?: string;
+  dob?: string;
   address?: string;
   district?: string;
   constituency?: string;
@@ -37,6 +38,14 @@ interface FieldErrors {
 const inputClass =
   "w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25";
 
+/** True when `yyyy-mm-dd` is a real date at least 18 years in the past. */
+function isAtLeast18(dateString: string): boolean {
+  const dob = new Date(`${dateString}T00:00:00`);
+  if (Number.isNaN(dob.getTime())) return false;
+  const eighteenthBirthday = new Date(dob.getFullYear() + 18, dob.getMonth(), dob.getDate());
+  return eighteenthBirthday.getTime() <= Date.now();
+}
+
 function EnrollPage() {
   const { t } = useI18n();
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -44,6 +53,12 @@ function EnrollPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  // Date-picker ceiling: applicants must already be 18 (today minus 18 years).
+  const [dobMax] = useState(() => {
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - 18);
+    return cutoff.toISOString().slice(0, 10);
+  });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,6 +70,7 @@ function EnrollPage() {
     const address = String(form.get("address") ?? "").trim();
     const district = String(form.get("district") ?? "");
     const constituency = String(form.get("constituency") ?? "").trim();
+    const dateOfBirth = String(form.get("dateOfBirth") ?? "");
 
     const next: FieldErrors = {};
     if (fullName.length < 2) next.fullName = t("enroll.errors.fullName");
@@ -62,6 +78,8 @@ function EnrollPage() {
     if (address.length < 5) next.address = t("enroll.errors.address");
     if (!district) next.district = t("enroll.errors.district");
     if (constituency.length < 2) next.constituency = t("enroll.errors.constituency");
+    if (!dateOfBirth) next.dob = t("enroll.errors.dob");
+    else if (!isAtLeast18(dateOfBirth)) next.dob = t("enroll.errors.dobAge");
     if (!photo || !ALLOWED_PHOTO_TYPES.includes(photo.type) || photo.size > MAX_PHOTO_BYTES) {
       next.photo = t("enroll.errors.photo");
     }
@@ -71,7 +89,7 @@ function EnrollPage() {
 
     setSubmitting(true);
     try {
-      await submitEnrollment({ fullName, phone, address, district, constituency, photo });
+      await submitEnrollment({ fullName, phone, address, district, constituency, dateOfBirth, photo });
       setDone(true);
     } catch {
       setFormError(t("enroll.errors.generic"));
@@ -125,16 +143,28 @@ function EnrollPage() {
             <input name="fullName" type="text" className={inputClass} autoComplete="name" />
           </Field>
 
-          <Field label={t("enroll.phone")} hint={t("enroll.phoneHint")} error={errors.phone}>
-            <input
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              className={inputClass}
-              autoComplete="tel-national"
-            />
-          </Field>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label={t("enroll.phone")} hint={t("enroll.phoneHint")} error={errors.phone}>
+              <input
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                className={inputClass}
+                autoComplete="tel-national"
+              />
+            </Field>
+
+            <Field label={t("enroll.dob")} hint={t("enroll.dobHint")} error={errors.dob}>
+              <input
+                name="dateOfBirth"
+                type="date"
+                max={dobMax}
+                className={inputClass}
+                autoComplete="bday"
+              />
+            </Field>
+          </div>
 
           <Field label={t("enroll.address")} error={errors.address}>
             <textarea name="address" rows={3} className={inputClass} autoComplete="street-address" />

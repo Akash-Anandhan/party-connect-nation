@@ -13,6 +13,8 @@ export interface EnrollmentInput {
   address: string;
   district: string;
   constituency: string;
+  /** ISO date (yyyy-mm-dd), required — applicants must be 18 or older. */
+  dateOfBirth: string;
   photo: File;
 }
 
@@ -51,6 +53,7 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     district: input.district,
     state: FIXED_STATE,
     constituency: input.constituency.trim(),
+    date_of_birth: input.dateOfBirth,
     photo_path: path,
     status: "pending",
   });
