@@ -70,6 +70,9 @@ export function PendingApplications() {
               {t("common.phone")}: {application.phone}
             </p>
             <p className="text-muted-foreground">
+              {t("common.dob")}: {formatDate(application.date_of_birth, language)}
+            </p>
+            <p className="text-muted-foreground">
               {t("common.address")}: {application.address}
             </p>
             <p className="text-muted-foreground">

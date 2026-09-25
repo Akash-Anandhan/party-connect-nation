@@ -51,6 +51,8 @@
     "fullName": "Full name",
     "phone": "Phone number",
     "phoneHint": "10-digit mobile number",
+    "dob": "Date of birth",
+    "dobHint": "Applicants must be 18 or older",
     "address": "Address",
     "district": "District",
     "districtSelect": "Select district",
@@ -69,6 +71,8 @@
       "address": "Please enter your address.",
       "district": "Please select your district.",
       "constituency": "Please enter your constituency.",
+      "dob": "Please enter your date of birth.",
+      "dobAge": "You must be at least 18 years old.",
       "photo": "Please upload a photo (JPG or PNG, max 5 MB).",
       "generic": "Could not submit your enrollment. Please try again."
     }
@@ -150,6 +154,7 @@
     "back": "Back",
     "name": "Name",
     "phone": "Phone",
+    "dob": "Date of birth",
     "address": "Address",
     "status": "Status"
   }
