@@ -8,6 +8,7 @@ import {
   ALLOWED_PHOTO_TYPES,
   FIXED_STATE,
   MAX_PHOTO_BYTES,
+  TAMIL_NADU_CONSTITUENCIES,
   TAMIL_NADU_DISTRICTS,
 } from "@/lib/constants";
 import { PhoneTakenError, phoneCanApply, submitEnrollment } from "@/services/membership";
@@ -53,17 +54,24 @@ function isAtLeast18(dateString: string): boolean {
 }
 
 /**
- * BUG-001/004: names are letters (any script), spaces and the few punctuation
- * marks real names use (apostrophe, period, hyphen). Digits and other special
- * characters are rejected. Also used to scrub the field as the user types.
+ * BUG-004 (strict): names are letters (any script, including Tamil) and
+ * spaces only — digits and every special character are rejected. Also used
+ * to scrub the field as the user types.
  */
-const NAME_ALLOWED = /[\p{L}\s.'-]/u;
-const NAME_INVALID = /[^\p{L}\s.'-]/u;
+const NAME_ALLOWED = /[\p{L}\s]/u;
+const NAME_INVALID = /[^\p{L}\s]/u;
 
 /** BUG-003: phone fields keep digits only — everything else is stripped. */
 function onlyDigits(value: string): string {
   return value.replace(/[^0-9]/g, "");
 }
+
+/**
+ * BUG-007: valid Indian mobile — 10 digits, first digit 6-9. (The national
+ * numbering plan has no 0/1-5 mobile prefixes; this rejects keyboard mashes
+ * like 0000000000 and transposed landline codes.)
+ */
+const VALID_PHONE = /^[6-9][0-9]{9}$/;
 
 /** Keep the first image file whose type/extension is an accepted photo. */
 function isAcceptedPhoto(file: File): boolean {
@@ -80,6 +88,12 @@ function EnrollPage() {
   const [result, setResult] = useState<{ crfNo: string; publicToken: string } | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoNote, setPhotoNote] = useState<string | null>(null);
+  // BUG-008: the constituency is picked from the selected district's own
+  // list, so the district/constituency pair can never mismatch or be
+  // misspelled.
+  const [district, setDistrict] = useState("");
+  const [constituency, setConstituency] = useState("");
+  const districtConstituencies = TAMIL_NADU_CONSTITUENCIES[district] ?? [];
   // Date-picker ceiling: applicants must already be 18 (today minus 18 years).
   const [dobMax] = useState(() => {
     const cutoff = new Date();
@@ -103,7 +117,7 @@ function EnrollPage() {
     if (fullName.length < 2 || NAME_INVALID.test(fullName)) {
       next.fullName = t("enroll.errors.fullName");
     }
-    if (!/^[0-9]{10}$/.test(phone)) next.phone = t("enroll.errors.phone");
+    if (!VALID_PHONE.test(phone)) next.phone = t("enroll.errors.phone");
     if (address.length < 5) next.address = t("enroll.errors.address");
     if (!district) next.district = t("enroll.errors.district");
     if (constituency.length < 2) next.constituency = t("enroll.errors.constituency");
@@ -178,6 +192,9 @@ function EnrollPage() {
                 onClick={() => {
                   setResult(null);
                   setPhoto(null);
+                  setPhotoNote(null);
+                  setDistrict("");
+                  setConstituency("");
                 }}
                 className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary hover:bg-muted"
               >
@@ -248,13 +265,21 @@ function EnrollPage() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label={t("enroll.district")} error={errors.district}>
-              <select name="district" className={inputClass} defaultValue="">
+              <select
+                name="district"
+                className={inputClass}
+                value={district}
+                onChange={(event) => {
+                  setDistrict(event.target.value);
+                  setConstituency("");
+                }}
+              >
                 <option value="" disabled>
                   {t("enroll.districtSelect")}
                 </option>
-                {TAMIL_NADU_DISTRICTS.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
+                {TAMIL_NADU_DISTRICTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
                   </option>
                 ))}
               </select>
@@ -272,7 +297,22 @@ function EnrollPage() {
           </div>
 
           <Field label={t("enroll.constituency")} error={errors.constituency}>
-            <input name="constituency" type="text" maxLength={70} className={inputClass} />
+            <select
+              name="constituency"
+              className={inputClass}
+              value={constituency}
+              disabled={!district}
+              onChange={(event) => setConstituency(event.target.value)}
+            >
+              <option value="" disabled>
+                {district ? t("enroll.constituencySelect") : t("enroll.constituencyPickDistrict")}
+              </option>
+              {districtConstituencies.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </Field>
 
           <Field label={t("enroll.photo")} hint={t("enroll.photoHint")} error={errors.photo}>

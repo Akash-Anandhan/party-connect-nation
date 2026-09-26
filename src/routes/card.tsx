@@ -54,7 +54,7 @@ function TrackingForm() {
     setError(null);
 
     const digits = phone.trim();
-    if (!/^[0-9]{10}$/.test(digits)) {
+    if (!/^[6-9][0-9]{9}$/.test(digits)) {
       setError(t("card.errors.phone"));
       return;
     }

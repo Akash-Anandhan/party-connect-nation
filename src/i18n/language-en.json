@@ -57,6 +57,8 @@
     "districtSelect": "Select district",
     "state": "State",
     "constituency": "Constituency (Thogudhi)",
+    "constituencySelect": "Select constituency",
+    "constituencyPickDistrict": "Select a district first",
     "photo": "Profile photo",
     "photoHint": "JPG or PNG, up to 5 MB",
     "submit": "Submit enrollment",
@@ -68,7 +70,7 @@
     "again": "Enroll another member",
     "errors": {
       "fullName": "Enter your full name using letters only (no numbers or special characters).",
-      "phone": "Enter a valid 10-digit phone number.",
+      "phone": "Enter a valid 10-digit Indian mobile number (starting 6-9).",
       "address": "Please enter your address.",
       "district": "Please select your district.",
       "constituency": "Please enter your constituency.",
