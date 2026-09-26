@@ -44,6 +44,7 @@ export function MembersList() {
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         placeholder={t("admin.members.search")}
+        maxLength={80}
         className="w-full max-w-sm rounded-md border border-input bg-card px-3 py-2 text-sm"
       />
 
@@ -54,12 +55,12 @@ export function MembersList() {
           <table className="w-full text-left text-sm">
             <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">{t("common.name")}</th>
-                <th className="px-4 py-3">{t("admin.members.crf")}</th>
-                <th className="px-4 py-3">{t("common.phone")}</th>
-                <th className="px-4 py-3">{t("card.district")}</th>
-                <th className="px-4 py-3">{t("card.constituency")}</th>
-                <th className="px-4 py-3">{t("card.issued")}</th>
+                <th className="break-anywhere px-4 py-3">{t("common.name")}</th>
+                <th className="break-anywhere px-4 py-3">{t("admin.members.crf")}</th>
+                <th className="break-anywhere px-4 py-3">{t("common.phone")}</th>
+                <th className="break-anywhere px-4 py-3">{t("card.district")}</th>
+                <th className="break-anywhere px-4 py-3">{t("card.constituency")}</th>
+                <th className="break-anywhere px-4 py-3">{t("card.issued")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -68,13 +69,13 @@ export function MembersList() {
                 const token = member.member_cards?.public_token;
                 return (
                   <tr key={member.id} className="border-t border-border">
-                    <td className="px-4 py-3 font-medium">{member.full_name}</td>
-                    <td className="px-4 py-3">{member.crf_no}</td>
-                    <td className="px-4 py-3">{member.phone}</td>
-                    <td className="px-4 py-3">{member.district}</td>
-                    <td className="px-4 py-3">{member.constituency}</td>
-                    <td className="px-4 py-3">{formatDate(member.joined_at, language)}</td>
-                    <td className="px-4 py-3">
+                    <td className="break-anywhere px-4 py-3 font-medium">{member.full_name}</td>
+                    <td className="break-anywhere px-4 py-3">{member.crf_no}</td>
+                    <td className="break-anywhere px-4 py-3">{member.phone}</td>
+                    <td className="break-anywhere px-4 py-3">{member.district}</td>
+                    <td className="break-anywhere px-4 py-3">{member.constituency}</td>
+                    <td className="break-anywhere px-4 py-3">{formatDate(member.joined_at, language)}</td>
+                    <td className="break-anywhere px-4 py-3">
                       {token ? (
                         <Link
                           to="/verify/$token"

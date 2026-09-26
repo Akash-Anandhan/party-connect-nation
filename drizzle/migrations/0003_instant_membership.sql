@@ -111,7 +111,7 @@ BEGIN
     RETURN json_build_object('status', 'not_found');
   END IF;
 
-  SELECT m.full_name, m.crf_no, m.district, m.constituency, m.joined_at, c.public_token
+  SELECT mem.full_name, mem.crf_no, mem.district, mem.constituency, mem.joined_at, c.public_token
   INTO m
   FROM public.members mem
   JOIN public.member_cards c ON c.member_id = mem.id AND c.revoked_at IS NULL

@@ -158,7 +158,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-border/60 pb-2">
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium text-foreground">{value}</dd>
+      <dd className="break-anywhere text-right font-medium text-foreground">{value}</dd>
     </div>
   );
 }

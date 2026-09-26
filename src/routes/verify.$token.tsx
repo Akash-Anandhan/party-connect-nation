@@ -85,7 +85,7 @@ function VerifyPage() {
               <h1 className="text-xl text-primary">{t("card.verificationTitle")}</h1>
             </div>
 
-            <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+            <dl className="mt-6 grid gap-4 break-anywhere sm:grid-cols-2">
               <Detail label={t("common.name")} value={data.full_name} />
               <Detail label={t("card.crf")} value={data.crf_no} />
               <Detail label={t("card.district")} value={data.district} />

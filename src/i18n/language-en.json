@@ -67,7 +67,7 @@
     "viewCardNow": "View your membership card",
     "again": "Enroll another member",
     "errors": {
-      "fullName": "Please enter your full name.",
+      "fullName": "Enter your full name using letters only (no numbers or special characters).",
       "phone": "Enter a valid 10-digit phone number.",
       "address": "Please enter your address.",
       "district": "Please select your district.",

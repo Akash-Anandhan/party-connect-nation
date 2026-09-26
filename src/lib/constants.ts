@@ -45,4 +45,6 @@ export const TAMIL_NADU_DISTRICTS = [
 
 export const PHOTO_BUCKET = "member-photos";
 export const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
-export const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+/** Profile photo: JPG/JPEG and PNG only (QA BUG-002). */
+export const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png"];
+export const ALLOWED_PHOTO_EXTENSIONS = ["jpg", "jpeg", "png"];

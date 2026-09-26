@@ -5,6 +5,22 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
+ * Unbreakable member data (a name pasted as one 300-char word) must wrap
+ * instead of stretching tables, panels and cards into a horizontal scroll.
+ * `anywhere` (not `break-word`) also shrinks the min-content width, which is
+ * what lets auto-layout table columns actually collapse.
+ */
+@utility break-anywhere {
+  overflow-wrap: anywhere;
+}
+
+/* Same guarantee inside rendered card templates ({{name}} etc.). */
+#membership-card,
+#membership-card * {
+  overflow-wrap: anywhere;
+}
+
+/*
  * Design system — party brand palette.
  * Red #790604 · Green #246820 · Gold #EBC336 · Cream #F3F0C8 · Brown #261611 / #693E2C
  * All colors are semantic tokens. Never hardcode colors in components.

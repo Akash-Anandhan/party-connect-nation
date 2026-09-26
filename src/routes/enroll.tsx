@@ -3,7 +3,13 @@ import { useState, type FormEvent } from "react";
 
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
-import { ALLOWED_PHOTO_TYPES, FIXED_STATE, MAX_PHOTO_BYTES, TAMIL_NADU_DISTRICTS } from "@/lib/constants";
+import {
+  ALLOWED_PHOTO_EXTENSIONS,
+  ALLOWED_PHOTO_TYPES,
+  FIXED_STATE,
+  MAX_PHOTO_BYTES,
+  TAMIL_NADU_DISTRICTS,
+} from "@/lib/constants";
 import { PhoneTakenError, phoneCanApply, submitEnrollment } from "@/services/membership";
 
 export const Route = createFileRoute("/enroll")({
@@ -46,6 +52,25 @@ function isAtLeast18(dateString: string): boolean {
   return eighteenthBirthday.getTime() <= Date.now();
 }
 
+/**
+ * BUG-001/004: names are letters (any script), spaces and the few punctuation
+ * marks real names use (apostrophe, period, hyphen). Digits and other special
+ * characters are rejected. Also used to scrub the field as the user types.
+ */
+const NAME_ALLOWED = /[\p{L}\s.'-]/u;
+const NAME_INVALID = /[^\p{L}\s.'-]/u;
+
+/** BUG-003: phone fields keep digits only — everything else is stripped. */
+function onlyDigits(value: string): string {
+  return value.replace(/[^0-9]/g, "");
+}
+
+/** Keep the first image file whose type/extension is an accepted photo. */
+function isAcceptedPhoto(file: File): boolean {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return ALLOWED_PHOTO_TYPES.includes(file.type) && ALLOWED_PHOTO_EXTENSIONS.includes(extension);
+}
+
 function EnrollPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -54,6 +79,7 @@ function EnrollPage() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ crfNo: string; publicToken: string } | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoNote, setPhotoNote] = useState<string | null>(null);
   // Date-picker ceiling: applicants must already be 18 (today minus 18 years).
   const [dobMax] = useState(() => {
     const cutoff = new Date();
@@ -74,7 +100,9 @@ function EnrollPage() {
     const dateOfBirth = String(form.get("dateOfBirth") ?? "");
 
     const next: FieldErrors = {};
-    if (fullName.length < 2) next.fullName = t("enroll.errors.fullName");
+    if (fullName.length < 2 || NAME_INVALID.test(fullName)) {
+      next.fullName = t("enroll.errors.fullName");
+    }
     if (!/^[0-9]{10}$/.test(phone)) next.phone = t("enroll.errors.phone");
     if (address.length < 5) next.address = t("enroll.errors.address");
     if (!district) next.district = t("enroll.errors.district");
@@ -170,7 +198,19 @@ function EnrollPage() {
 
         <form onSubmit={handleSubmit} className="panel mt-8 space-y-5 p-6" noValidate>
           <Field label={t("enroll.fullName")} error={errors.fullName}>
-            <input name="fullName" type="text" className={inputClass} autoComplete="name" />
+            <input
+              name="fullName"
+              type="text"
+              maxLength={70}
+              className={inputClass}
+              autoComplete="name"
+              onInput={(event) => {
+                // Live scrub: strip anything a name cannot contain.
+                const input = event.currentTarget;
+                const cleaned = input.value.split("").filter((ch) => NAME_ALLOWED.test(ch)).join("");
+                if (cleaned !== input.value) input.value = cleaned;
+              }}
+            />
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -182,6 +222,12 @@ function EnrollPage() {
                 maxLength={10}
                 className={inputClass}
                 autoComplete="tel-national"
+                onInput={(event) => {
+                  // Live scrub (BUG-003): keep digits only, capped at 10.
+                  const input = event.currentTarget;
+                  const cleaned = onlyDigits(input.value).slice(0, 10);
+                  if (cleaned !== input.value) input.value = cleaned;
+                }}
               />
             </Field>
 
@@ -197,7 +243,7 @@ function EnrollPage() {
           </div>
 
           <Field label={t("enroll.address")} error={errors.address}>
-            <textarea name="address" rows={3} className={inputClass} autoComplete="street-address" />
+            <textarea name="address" rows={3} maxLength={300} className={inputClass} autoComplete="street-address" />
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -226,21 +272,37 @@ function EnrollPage() {
           </div>
 
           <Field label={t("enroll.constituency")} error={errors.constituency}>
-            <input name="constituency" type="text" className={inputClass} />
+            <input name="constituency" type="text" maxLength={70} className={inputClass} />
           </Field>
 
           <Field label={t("enroll.photo")} hint={t("enroll.photoHint")} error={errors.photo}>
             <input
               name="photo"
               type="file"
-              accept={ALLOWED_PHOTO_TYPES.join(",")}
+              accept={ALLOWED_PHOTO_EXTENSIONS.map((extension) => `.${extension}`).join(",")}
               className={inputClass}
-              onChange={(event) => setPhoto(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                // BUG-002: browsers only soft-enforce `accept` (the picker can
+                // still be switched to "All files"), so validate the pick and
+                // reject non-image files immediately with a clear message.
+                if (file && !isAcceptedPhoto(file)) {
+                  setPhoto(null);
+                  setPhotoNote(t("enroll.errors.photo"));
+                  event.target.value = "";
+                  return;
+                }
+                setPhoto(file);
+                setPhotoNote(null);
+              }}
             />
             {photo ? (
               <p className="mt-2 text-xs text-muted-foreground">
                 {photo.name} · {(photo.size / 1024).toFixed(0)} KB
               </p>
+            ) : null}
+            {!photo && photoNote ? (
+              <p className="mt-2 text-xs text-destructive">{photoNote}</p>
             ) : null}
           </Field>
 
