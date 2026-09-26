@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
+import crossedFlags from "@/assets/crossed-flags.png";
 import founderPhoto from "@/assets/founder-velmurugan.jpg";
-import partyFlag from "@/assets/favicon.jpeg";
+import heroBg from "@/assets/hero-bg.jpg";
+import ideologues from "@/assets/ideologues.png";
+import leaderCutout from "@/assets/leader-cutout.png";
 import { BrandStrip } from "@/components/BrandStrip";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
@@ -31,16 +35,52 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1.2fr_1fr] md:items-center md:py-24">
+      <section className="relative overflow-hidden border-b border-border">
+        <img
+          src={heroBg}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/25" />
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.15fr_0.85fr] md:py-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary">
-              {t("home.eyebrow")}
+            <img
+              src={ideologues}
+              alt=""
+              aria-hidden="true"
+              className="h-16 w-auto md:h-20"
+            />
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <img
+                src={crossedFlags}
+                alt=""
+                aria-hidden="true"
+                className="h-14 w-auto md:h-16"
+              />
+              <h1 className="font-tamil text-4xl font-bold leading-tight text-primary md:text-5xl">
+                {t("app.fullName")}
+              </h1>
+            </div>
+            <p className="mt-4 font-tamil text-lg font-semibold md:text-xl">
+              {t("home.heroTagline")
+                .split("|")
+                .map(
+                  (word, index, parts): ReactNode => (
+                    <span key={index}>
+                      <span className="text-secondary">{word.trim()}</span>
+                      {index < parts.length - 1 && (
+                        <span className="mx-2 text-gold">|</span>
+                      )}
+                    </span>
+                  ),
+                )}
             </p>
-            <h1 className="mt-4 text-4xl leading-tight text-primary md:text-5xl">
-              {t("home.title")}
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+            <p className="mt-5 inline-block rounded-md border-y-2 border-gold bg-accent/30 px-4 py-2 font-tamil text-2xl font-bold text-primary">
+              {t("home.heroSlogan")}
+            </p>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
               {t("home.subtitle")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -48,7 +88,7 @@ function HomePage() {
                 to="/enroll"
                 className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-elegant transition-opacity hover:opacity-90"
               >
-                {t("home.cta")}
+                {t("home.heroCta")} →
               </Link>
               <Link
                 to="/card"
@@ -59,20 +99,21 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="panel overflow-hidden">
-            <BrandStrip />
-            <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
-              <img
-                src={partyFlag}
-                alt={t("app.party")}
-                className="h-24 w-24 rounded-full border-4 border-gold object-cover"
-              />
-              <p className="font-display text-2xl text-primary">{t("app.party")}</p>
-              <p className="text-sm font-medium text-foreground">{t("app.fullName")}</p>
-              <p className="text-sm text-muted-foreground">{t("app.state")}</p>
-            </div>
-            <BrandStrip />
-          </div>
+          <figure className="flex flex-col items-center">
+            <img
+              src={leaderCutout}
+              alt={t("about.founderName")}
+              className="max-h-96 w-auto object-contain drop-shadow-2xl md:max-h-[520px]"
+            />
+            <figcaption className="mt-3 text-center">
+              <span className="block font-display text-lg text-primary">
+                {t("about.founderName")}
+              </span>
+              <span className="block text-xs uppercase tracking-[0.18em] text-secondary">
+                {t("about.founderTitle")}
+              </span>
+            </figcaption>
+          </figure>
         </div>
       </section>
 

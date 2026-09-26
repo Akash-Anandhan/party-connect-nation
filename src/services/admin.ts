@@ -15,7 +15,7 @@ export async function listApplications(status: Application["status"]): Promise<A
     .eq("status", status)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Application[];
 }
 
 export async function approveApplication(id: string) {

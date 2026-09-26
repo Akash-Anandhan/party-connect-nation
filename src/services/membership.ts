@@ -1,11 +1,22 @@
 import { supabase } from "@/integrations/external/client";
 import { FIXED_STATE, PHOTO_BUCKET } from "@/lib/constants";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
 
-export type Application = Tables<"membership_applications">;
-export type Member = Tables<"members">;
-export type MemberCard = Tables<"member_cards">;
-export type CardTemplate = Tables<"card_templates">;
+type ApplicationTables = Database["public"]["Tables"]["membership_applications"];
+
+/**
+ * The generated Database types predate the date_of_birth migration on the
+ * live database, so patch the application shape here until they regenerate.
+ */
+export type Application = Omit<ApplicationTables["Row"], "date_of_birth"> & {
+  date_of_birth: string | null;
+};
+export type ApplicationInsert = Omit<ApplicationTables["Insert"], "date_of_birth"> & {
+  date_of_birth: string | null;
+};
+export type Member = Database["public"]["Tables"]["members"]["Row"];
+export type MemberCard = Database["public"]["Tables"]["member_cards"]["Row"];
+export type CardTemplate = Database["public"]["Tables"]["card_templates"]["Row"];
 
 export interface EnrollmentInput {
   fullName: string;
@@ -46,7 +57,8 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     .upload(path, input.photo, { contentType: input.photo.type, upsert: false });
   if (uploadError) throw uploadError;
 
-  const { error } = await supabase.from("membership_applications").insert({
+  // Generated client types do not know the date_of_birth column yet.
+  const payload = {
     full_name: input.fullName.trim(),
     phone: input.phone.trim(),
     address: input.address.trim(),
@@ -56,7 +68,11 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     date_of_birth: input.dateOfBirth,
     photo_path: path,
     status: "pending",
-  });
+  } satisfies ApplicationInsert;
+
+  const { error } = await supabase
+    .from("membership_applications")
+    .insert(payload as unknown as never);
   if (error) throw error;
 }
 
