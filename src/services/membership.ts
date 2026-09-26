@@ -2,7 +2,17 @@ import { supabase } from "@/integrations/external/client";
 import { FIXED_STATE, PHOTO_BUCKET } from "@/lib/constants";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type Application = Tables<"membership_applications">;
+/**
+ * The generated Database types predate the date_of_birth migration on the
+ * live database, so patch the application shape here until they regenerate.
+ */
+type ApplicationBase = Tables<"membership_applications">;
+export type Application = Omit<ApplicationBase, "date_of_birth"> & {
+  date_of_birth: string | null;
+};
+export type ApplicationInsert = Omit<ApplicationBase["Insert"], "date_of_birth"> & {
+  date_of_birth: string | null;
+};
 export type Member = Tables<"members">;
 export type MemberCard = Tables<"member_cards">;
 export type CardTemplate = Tables<"card_templates">;
