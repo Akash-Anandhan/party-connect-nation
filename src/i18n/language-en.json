@@ -38,10 +38,10 @@
       "title": "How enrollment works",
       "one": "Submit your enrollment",
       "oneBody": "Fill in your details and upload a passport-size photo.",
-      "two": "Office review",
-      "twoBody": "The party office reviews and approves your application.",
-      "three": "Get your card",
-      "threeBody": "A unique CRF number is issued and your card becomes downloadable."
+      "two": "Card issued instantly",
+      "twoBody": "Your membership is confirmed right away — no waiting for office review.",
+      "three": "Carry your card",
+      "threeBody": "A unique CRF number is issued and your card is ready to print or share."
     }
   },
   "enroll": {
@@ -61,9 +61,11 @@
     "photoHint": "JPG or PNG, up to 5 MB",
     "submit": "Submit enrollment",
     "submitting": "Submitting...",
-    "successTitle": "Enrollment submitted",
-    "successBody": "Your application is pending review by the party office. You will receive your CRF number and membership card once approved.",
-    "again": "Submit another enrollment",
+    "successTitle": "You are a member!",
+    "successBody": "Your membership card has been issued instantly. Your CRF number:",
+    "crfNote": "Keep this number — you can always find your card with your mobile number.",
+    "viewCardNow": "View your membership card",
+    "again": "Enroll another member",
     "errors": {
       "fullName": "Please enter your full name.",
       "phone": "Enter a valid 10-digit phone number.",
@@ -78,26 +80,20 @@
     }
   },
   "card": {
-    "title": "Track Your Membership",
-    "subtitle": "Enter the mobile number you enrolled with to check your application status and open your membership card.",
+    "title": "View Your Membership",
+    "subtitle": "Enter the mobile number you enrolled with to open your membership card.",
     "phoneLabel": "Mobile number",
     "phonePlaceholder": "10-digit mobile number",
     "track": "Check status",
     "status": {
-      "pending": "Application pending",
-      "pendingBody": "Your enrollment has been received and is awaiting review by the party office.",
-      "approved": "Membership approved",
-      "approvedBody": "Your membership card is ready.",
-      "rejected": "Application rejected",
-      "rejectedBody": "Your application was not approved. You can submit a new enrollment with this number.",
+      "member": "Welcome, member",
       "districtLabel": "District · Constituency",
-      "submitted": "Submitted",
-      "viewCard": "View membership card",
-      "enrollAgain": "Submit a new enrollment"
+      "joined": "Member since",
+      "viewCard": "View membership card"
     },
     "errors": {
       "phone": "Enter a valid 10-digit mobile number.",
-      "notFound": "No active application found for this number. Rejected applications release the number — you can enroll again."
+      "notFound": "No membership found for this number. If you enrolled recently, check the number — or enroll to become a member."
     },
     "view": "View card",
     "notFound": "No membership card found for this code.",
@@ -125,18 +121,8 @@
     "notAdmin": "This account does not have administrator access.",
     "signInError": "Sign in failed. Check your email and password.",
     "tabs": {
-      "pending": "Pending applications",
       "members": "Members",
       "templates": "Card templates"
-    },
-    "pending": {
-      "empty": "No pending applications.",
-      "approve": "Approve",
-      "reject": "Reject",
-      "approved": "Application approved",
-      "rejected": "Application rejected",
-      "rejectReason": "Reason for rejection (optional)",
-      "submitted": "Submitted"
     },
     "members": {
       "empty": "No approved members yet.",

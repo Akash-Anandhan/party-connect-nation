@@ -1,8 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
-import { FIXED_STATE, PHOTO_BUCKET } from "@/lib/constants";
+import { PHOTO_BUCKET } from "@/lib/constants";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type Application = Tables<"membership_applications">;
 export type Member = Tables<"members">;
 export type MemberCard = Tables<"member_cards">;
 export type CardTemplate = Tables<"card_templates">;
@@ -28,24 +27,19 @@ export class PhoneTakenError extends Error {
 
 /** Result of the public `track_application` RPC, keyed by phone number. */
 export type TrackingResult =
-  | { status: "invalid" }
   | { status: "not_found" }
   | {
-      status: "pending" | "rejected";
-      fullName: string;
-      district: string;
-      constituency: string;
-      submittedAt: string;
-    }
-  | {
-      status: "approved";
+      status: "member";
       fullName: string;
       crfNo: string | null;
       district: string;
       constituency: string;
-      submittedAt: string;
+      joinedAt: string;
       publicToken: string | null;
     };
+
+/** The tracking result for an existing member (status narrowed to "member"). */
+export type MemberResult = Extract<TrackingResult, { status: "member" }>;
 
 interface TrackRpcPayload {
   status?: string;
@@ -53,50 +47,37 @@ interface TrackRpcPayload {
   crf_no?: string | null;
   district?: string | null;
   constituency?: string | null;
-  submitted_at?: string | null;
+  joined_at?: string | null;
   public_token?: string | null;
 }
 
 /**
- * Public card tracking by the applicant's own mobile number. One active
- * application per phone: pending and approved count; rejected frees the
- * number. Approved results carry the card's public token so the existing
- * /verify/<token> links and QR codes stay undisturbed.
+ * Public card tracking by the member's mobile number. Membership is instant,
+ * so every tracked number belongs to an existing member; the result carries
+ * the card's public token so the existing /verify/<token> links and QR codes
+ * stay undisturbed.
  */
 export async function trackApplication(phone: string): Promise<TrackingResult> {
   const { data, error } = await supabase.rpc("track_application", { _phone: phone.trim() });
   if (error) throw error;
   const p = (data ?? {}) as TrackRpcPayload;
-  if (p.status === "invalid" || p.status === "not_found") {
-    return { status: p.status };
+  if (p.status !== "member") {
+    return { status: "not_found" };
   }
-  if (p.status === "pending" || p.status === "rejected") {
-    return {
-      status: p.status,
-      fullName: p.full_name ?? "",
-      district: p.district ?? "",
-      constituency: p.constituency ?? "",
-      submittedAt: p.submitted_at ?? "",
-    };
-  }
-  if (p.status === "approved") {
-    return {
-      status: "approved",
-      fullName: p.full_name ?? "",
-      crfNo: p.crf_no ?? null,
-      district: p.district ?? "",
-      constituency: p.constituency ?? "",
-      submittedAt: p.submitted_at ?? "",
-      publicToken: p.public_token ?? null,
-    };
-  }
-  return { status: "not_found" };
+  return {
+    status: "member",
+    fullName: p.full_name ?? "",
+    crfNo: p.crf_no ?? null,
+    district: p.district ?? "",
+    constituency: p.constituency ?? "",
+    joinedAt: p.joined_at ?? "",
+    publicToken: p.public_token ?? null,
+  };
 }
 
 /**
- * True when the phone number has no pending/approved application. Used by the
- * enroll form for an instant "number already enrolled" message before any
- * upload happens. Rejected applications release the number.
+ * True when the phone number is not a member yet. Used by the enroll form for
+ * an instant "number already enrolled" message before any upload happens.
  */
 export async function phoneCanApply(phone: string): Promise<boolean> {
   const { data, error } = await supabase.rpc("phone_can_apply", { _phone: phone.trim() });
@@ -123,8 +104,19 @@ function photoExtension(file: File): string {
   return "jpg";
 }
 
-/** Anonymous enrollment: upload the photo to the private bucket, then insert a pending application. */
-export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
+/** The newly created member identity, returned by an instant enrollment. */
+export interface EnrollmentResult {
+  crfNo: string;
+  publicToken: string;
+}
+
+/**
+ * Anonymous instant enrollment: upload the photo to the private bucket, then
+ * create member + CRF number + card token in one database transaction. The
+ * unique phone constraint makes duplicate submissions impossible, so the card
+ * can be shown immediately — there is no review step.
+ */
+export async function submitEnrollment(input: EnrollmentInput): Promise<EnrollmentResult> {
   const path = `applications/${crypto.randomUUID()}.${photoExtension(input.photo)}`;
 
   const { error: uploadError } = await supabase.storage
@@ -132,27 +124,30 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     .upload(path, input.photo, { contentType: input.photo.type, upsert: false });
   if (uploadError) throw uploadError;
 
-  const { error } = await supabase.from("membership_applications").insert({
-    full_name: input.fullName.trim(),
-    phone: input.phone.trim(),
-    address: input.address.trim(),
-    district: input.district,
-    state: FIXED_STATE,
-    constituency: input.constituency.trim(),
-    date_of_birth: input.dateOfBirth,
-    photo_path: path,
-    status: "pending",
+  const { data, error } = await supabase.rpc("enroll_member", {
+    _full_name: input.fullName.trim(),
+    _phone: input.phone.trim(),
+    _address: input.address.trim(),
+    _district: input.district,
+    _constituency: input.constituency.trim(),
+    _date_of_birth: input.dateOfBirth,
+    _photo_path: path,
   });
   if (error) {
-    // The partial unique index (0002) allows only one pending/approved
-    // application per phone. Surface that as a typed error the form can show
-    // a friendly message for. (An orphaned photo in the private bucket is
-    // harmless — nothing references it without an application row.)
+    // The unique phone constraint is the last line of defense against
+    // duplicates. Surface it as a typed error the form can show a friendly
+    // message for. (An orphaned photo in the private bucket is harmless —
+    // nothing references it without a member row.)
     if (error.code === "23505" || /duplicate key|unique constraint/i.test(error.message)) {
       throw new PhoneTakenError();
     }
     throw error;
   }
+  const payload = (data ?? {}) as { crf_no?: string; public_token?: string };
+  return {
+    crfNo: payload.crf_no ?? "",
+    publicToken: payload.public_token ?? "",
+  };
 }
 
 /** Public, unauthenticated card verification by opaque token. */

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 
 import { SiteLayout } from "@/components/SiteLayout";
@@ -13,12 +13,12 @@ export const Route = createFileRoute("/enroll")({
       {
         name: "description",
         content:
-          "Submit your party membership enrollment with your name, phone, address, district, constituency and photo. Tamil Nadu only.",
+          "Enroll as a party member with your name, phone, address, district, constituency and photo. Tamil Nadu only. Your membership card is issued instantly.",
       },
       { property: "og:title", content: "Enroll as a Member — NLCTVS" },
       {
         property: "og:description",
-        content: "Submit your party membership enrollment for review by the party office.",
+        content: "Enroll as a party member and get your digital membership card instantly.",
       },
     ],
   }),
@@ -48,10 +48,11 @@ function isAtLeast18(dateString: string): boolean {
 
 function EnrollPage() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
+  const [result, setResult] = useState<{ crfNo: string; publicToken: string } | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   // Date-picker ceiling: applicants must already be 18 (today minus 18 years).
   const [dobMax] = useState(() => {
@@ -87,10 +88,10 @@ function EnrollPage() {
     setErrors(next);
     if (Object.keys(next).length > 0 || !photo) return;
 
-    // One active application per phone: rejected releases the number. Check
-    // before uploading so a duplicate gets a friendly message instead of a
-    // failed insert after the photo upload. The insert itself re-checks via a
-    // partial unique index, so two simultaneous submissions still cannot win.
+    // Membership is instant, so a phone number that already belongs to a
+    // member cannot enroll again. Check before uploading so a duplicate gets
+    // a friendly message instead of a failed insert after the photo upload.
+    // The database's unique constraint re-checks, covering race conditions.
     setSubmitting(true);
     try {
       const available = await phoneCanApply(phone);
@@ -99,8 +100,16 @@ function EnrollPage() {
         setSubmitting(false);
         return;
       }
-      await submitEnrollment({ fullName, phone, address, district, constituency, dateOfBirth, photo });
-      setDone(true);
+      const created = await submitEnrollment({
+        fullName,
+        phone,
+        address,
+        district,
+        constituency,
+        dateOfBirth,
+        photo,
+      });
+      setResult(created);
     } catch (error) {
       if (error instanceof PhoneTakenError) {
         setErrors({ phone: t("enroll.errors.phoneTaken") });
@@ -112,33 +121,40 @@ function EnrollPage() {
     }
   }
 
-  if (done) {
+  if (result) {
     return (
       <SiteLayout>
         <div className="mx-auto max-w-xl px-4 py-20 text-center">
           <div className="panel p-10">
-            <span className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-success text-2xl text-success-foreground">
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success text-2xl text-success-foreground">
               ✓
             </span>
             <h1 className="mt-5 text-2xl text-primary">{t("enroll.successTitle")}</h1>
-            <p className="mt-3 text-sm text-muted-foreground">{t("enroll.successBody")}</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {t("enroll.successBody")}
+            </p>
+            <p className="mt-4 font-mono text-lg tracking-widest text-primary">{result.crfNo}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("enroll.crfNote")}</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <button
                 type="button"
+                onClick={() =>
+                  void navigate({ to: "/verify/$token", params: { token: result.publicToken } })
+                }
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                {t("enroll.viewCardNow")}
+              </button>
+              <button
+                type="button"
                 onClick={() => {
-                  setDone(false);
+                  setResult(null);
                   setPhoto(null);
                 }}
                 className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary hover:bg-muted"
               >
                 {t("enroll.again")}
               </button>
-              <Link
-                to="/"
-                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-              >
-                {t("nav.home")}
-              </Link>
             </div>
           </div>
         </div>

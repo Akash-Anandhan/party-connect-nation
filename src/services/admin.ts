@@ -1,35 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { PHOTO_BUCKET } from "@/lib/constants";
-import type { Application, CardTemplate, Member } from "./membership";
+import type { CardTemplate, Member } from "./membership";
 
 export async function isCurrentUserAdmin(): Promise<boolean> {
   const { data, error } = await supabase.rpc("is_admin");
   if (error) return false;
   return Boolean(data);
-}
-
-export async function listApplications(status: Application["status"]): Promise<Application[]> {
-  const { data, error } = await supabase
-    .from("membership_applications")
-    .select("*")
-    .eq("status", status)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function approveApplication(id: string) {
-  const { data, error } = await supabase.rpc("approve_application", { _application_id: id });
-  if (error) throw error;
-  return data as unknown as { member_id: string; crf_no: string; public_token: string };
-}
-
-export async function rejectApplication(id: string, notes: string | null) {
-  const { error } = await supabase.rpc("reject_application", {
-    _application_id: id,
-    ...(notes ? { _notes: notes } : {}),
-  });
-  if (error) throw error;
 }
 
 export interface MemberWithCard extends Member {

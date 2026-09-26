@@ -4,22 +4,25 @@ import { useState, type FormEvent } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
 import { formatDate } from "@/lib/format";
-import { trackApplication, type TrackingResult } from "@/services/membership";
+import {
+  trackApplication,
+  type MemberResult,
+  type TrackingResult,
+} from "@/services/membership";
 
 export const Route = createFileRoute("/card")({
   head: () => ({
     meta: [
-      { title: "Track Your Membership — NLCTVS" },
+      { title: "View Your Membership — NLCTVS" },
       {
         name: "description",
         content:
-          "Track your party membership with the mobile number you enrolled with: see whether your application is pending or rejected, and open your digital membership card once approved.",
+          "Enter the mobile number you enrolled with to open your digital membership card. Membership is issued instantly at enrollment.",
       },
-      { property: "og:title", content: "Track Your Membership — NLCTVS" },
+      { property: "og:title", content: "View Your Membership — NLCTVS" },
       {
         property: "og:description",
-        content:
-          "Enter the mobile number you enrolled with to see your application status and open your membership card.",
+        content: "Enter the mobile number you enrolled with to open your membership card.",
       },
     ],
   }),
@@ -67,11 +70,8 @@ function TrackingForm() {
     }
   }
 
-  if (
-    result &&
-    (result.status === "pending" || result.status === "rejected" || result.status === "approved")
-  ) {
-    return <TrackingStatus result={result} onBack={() => setResult(null)} />;
+  if (result?.status === "member") {
+    return <MemberStatus result={result} onBack={() => setResult(null)} />;
   }
 
   return (
@@ -114,84 +114,33 @@ function TrackingForm() {
   );
 }
 
-function TrackingStatus({ result, onBack }: { result: TrackingResult; onBack: () => void }) {
+function MemberStatus({ result, onBack }: { result: MemberResult; onBack: () => void }) {
   const { t, language } = useI18n();
   const navigate = useNavigate();
+  const { publicToken } = result;
 
-  if (result.status === "invalid" || result.status === "not_found") return null;
-
-  if (result.status === "approved") {
-    // Approved — link through to the existing verification page;
-    // /verify/<token> links and printed QR codes are unaffected by this flow.
-    const { publicToken } = result;
-    return (
-      <div className="panel p-8 text-center">
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success text-2xl text-success-foreground">
-          ✓
-        </span>
-        <h1 className="mt-5 text-2xl text-primary">{t("card.status.approved")}</h1>
-        <p className="mt-3 text-sm text-muted-foreground">{t("card.status.approvedBody")}</p>
-        <dl className="mt-6 space-y-2 text-left text-sm">
-          <Row label={t("common.name")} value={result.fullName} />
-          {result.crfNo ? <Row label={t("admin.members.crf")} value={result.crfNo} /> : null}
-          <Row
-            label={t("card.status.districtLabel")}
-            value={`${result.district} · ${result.constituency}`}
-          />
-        </dl>
-        {publicToken ? (
-          <button
-            type="button"
-            onClick={() =>
-              void navigate({ to: "/verify/$token", params: { token: publicToken } })
-            }
-            className="mt-7 w-full rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            {t("card.status.viewCard")}
-          </button>
-        ) : null}
-        <button
-          type="button"
-          onClick={onBack}
-          className="mt-3 w-full rounded-md border border-border px-6 py-2.5 text-sm text-foreground hover:bg-muted"
-        >
-          {t("common.back")}
-        </button>
-      </div>
-    );
-  }
-
-  const rejected = result.status === "rejected";
   return (
     <div className="panel p-8 text-center">
-      <span
-        className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl ${
-          rejected ? "bg-destructive text-destructive-foreground" : "bg-gold/20 text-gold"
-        }`}
-      >
-        {rejected ? "✕" : "⏳"}
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success text-2xl text-success-foreground">
+        ✓
       </span>
-      <h1 className={`mt-5 text-2xl ${rejected ? "text-destructive" : "text-primary"}`}>
-        {rejected ? t("card.status.rejected") : t("card.status.pending")}
-      </h1>
-      <p className="mt-3 text-sm text-muted-foreground">
-        {rejected ? t("card.status.rejectedBody") : t("card.status.pendingBody")}
-      </p>
+      <h1 className="mt-5 text-2xl text-primary">{t("card.status.member")}</h1>
       <dl className="mt-6 space-y-2 text-left text-sm">
         <Row label={t("common.name")} value={result.fullName} />
+        {result.crfNo ? <Row label={t("admin.members.crf")} value={result.crfNo} /> : null}
         <Row
           label={t("card.status.districtLabel")}
           value={`${result.district} · ${result.constituency}`}
         />
-        <Row label={t("card.status.submitted")} value={formatDate(result.submittedAt, language)} />
+        <Row label={t("card.status.joined")} value={formatDate(result.joinedAt, language)} />
       </dl>
-      {rejected ? (
+      {publicToken ? (
         <button
           type="button"
-          onClick={() => void navigate({ to: "/enroll" })}
+          onClick={() => void navigate({ to: "/verify/$token", params: { token: publicToken } })}
           className="mt-7 w-full rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
         >
-          {t("card.status.enrollAgain")}
+          {t("card.status.viewCard")}
         </button>
       ) : null}
       <button
