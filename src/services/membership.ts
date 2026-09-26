@@ -56,17 +56,19 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     .upload(path, input.photo, { contentType: input.photo.type, upsert: false });
   if (uploadError) throw uploadError;
 
-  const { error } = await supabase.from("membership_applications").insert({
-    full_name: input.fullName.trim(),
-    phone: input.phone.trim(),
-    address: input.address.trim(),
-    district: input.district,
-    state: FIXED_STATE,
-    constituency: input.constituency.trim(),
-    date_of_birth: input.dateOfBirth,
-    photo_path: path,
-    status: "pending",
-  });
+    const { error } = await supabase
+      .from("membership_applications")
+      .insert({
+        full_name: input.fullName.trim(),
+        phone: input.phone.trim(),
+        address: input.address.trim(),
+        district: input.district,
+        state: FIXED_STATE,
+        constituency: input.constituency.trim(),
+        date_of_birth: input.dateOfBirth,
+        photo_path: path,
+        status: "pending",
+      } as unknown as ApplicationInsert);
   if (error) throw error;
 }
 
