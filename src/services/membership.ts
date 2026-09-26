@@ -14,7 +14,7 @@ export type Application = Omit<ApplicationTables["Row"], "date_of_birth"> & {
 export type ApplicationInsert = Omit<ApplicationTables["Insert"], "date_of_birth"> & {
   date_of_birth: string | null;
 };
-export type Member = ApplicationTables extends never ? never : Database["public"]["Tables"]["members"]["Row"];
+export type Member = Database["public"]["Tables"]["members"]["Row"];
 export type MemberCard = Database["public"]["Tables"]["member_cards"]["Row"];
 export type CardTemplate = Database["public"]["Tables"]["card_templates"]["Row"];
 
