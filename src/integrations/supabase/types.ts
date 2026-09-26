@@ -83,7 +83,6 @@ export type Database = {
           constituency: string
           created_at: string
           crf_no: string
-          date_of_birth: string | null
           district: string
           full_name: string
           id: string
@@ -100,7 +99,6 @@ export type Database = {
           constituency: string
           created_at?: string
           crf_no: string
-          date_of_birth?: string | null
           district: string
           full_name: string
           id?: string
@@ -117,7 +115,6 @@ export type Database = {
           constituency?: string
           created_at?: string
           crf_no?: string
-          date_of_birth?: string | null
           district?: string
           full_name?: string
           id?: string
@@ -143,7 +140,6 @@ export type Database = {
           address: string
           constituency: string
           created_at: string
-          date_of_birth: string | null
           district: string
           full_name: string
           id: string
@@ -159,7 +155,6 @@ export type Database = {
           address: string
           constituency: string
           created_at?: string
-          date_of_birth?: string | null
           district: string
           full_name: string
           id?: string
@@ -175,7 +170,6 @@ export type Database = {
           address?: string
           constituency?: string
           created_at?: string
-          date_of_birth?: string | null
           district?: string
           full_name?: string
           id?: string
