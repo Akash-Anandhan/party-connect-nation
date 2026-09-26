@@ -1,10 +1,22 @@
-import { supabase } from "@/integrations/supabase/client";
-import { PHOTO_BUCKET } from "@/lib/constants";
-import type { Tables } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/external/client";
+import { FIXED_STATE, PHOTO_BUCKET } from "@/lib/constants";
+import type { Database } from "@/integrations/supabase/types";
 
-export type Member = Tables<"members">;
-export type MemberCard = Tables<"member_cards">;
-export type CardTemplate = Tables<"card_templates">;
+type ApplicationTables = Database["public"]["Tables"]["membership_applications"];
+
+/**
+ * The generated Database types predate the date_of_birth migration on the
+ * live database, so patch the application shape here until they regenerate.
+ */
+export type Application = Omit<ApplicationTables["Row"], "date_of_birth"> & {
+  date_of_birth: string | null;
+};
+export type ApplicationInsert = Omit<ApplicationTables["Insert"], "date_of_birth"> & {
+  date_of_birth: string | null;
+};
+export type Member = Database["public"]["Tables"]["members"]["Row"];
+export type MemberCard = Database["public"]["Tables"]["member_cards"]["Row"];
+export type CardTemplate = Database["public"]["Tables"]["card_templates"]["Row"];
 
 export interface EnrollmentInput {
   fullName: string;
@@ -124,30 +136,23 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<Enrollme
     .upload(path, input.photo, { contentType: input.photo.type, upsert: false });
   if (uploadError) throw uploadError;
 
-  const { data, error } = await supabase.rpc("enroll_member", {
-    _full_name: input.fullName.trim(),
-    _phone: input.phone.trim(),
-    _address: input.address.trim(),
-    _district: input.district,
-    _constituency: input.constituency.trim(),
-    _date_of_birth: input.dateOfBirth,
-    _photo_path: path,
-  });
-  if (error) {
-    // The unique phone constraint is the last line of defense against
-    // duplicates. Surface it as a typed error the form can show a friendly
-    // message for. (An orphaned photo in the private bucket is harmless —
-    // nothing references it without a member row.)
-    if (error.code === "23505" || /duplicate key|unique constraint/i.test(error.message)) {
-      throw new PhoneTakenError();
-    }
-    throw error;
-  }
-  const payload = (data ?? {}) as { crf_no?: string; public_token?: string };
-  return {
-    crfNo: payload.crf_no ?? "",
-    publicToken: payload.public_token ?? "",
-  };
+  // Generated client types do not know the date_of_birth column yet.
+  const payload = {
+    full_name: input.fullName.trim(),
+    phone: input.phone.trim(),
+    address: input.address.trim(),
+    district: input.district,
+    state: FIXED_STATE,
+    constituency: input.constituency.trim(),
+    date_of_birth: input.dateOfBirth,
+    photo_path: path,
+    status: "pending",
+  } satisfies ApplicationInsert;
+
+  const { error } = await supabase
+    .from("membership_applications")
+    .insert(payload as unknown as never);
+  if (error) throw error;
 }
 
 /** Public, unauthenticated card verification by opaque token. */

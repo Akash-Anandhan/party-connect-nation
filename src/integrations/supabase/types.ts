@@ -82,7 +82,6 @@ export type Database = {
           constituency: string
           created_at: string
           crf_no: string
-          date_of_birth: string | null
           district: string
           full_name: string
           id: string
@@ -98,7 +97,6 @@ export type Database = {
           constituency: string
           created_at?: string
           crf_no: string
-          date_of_birth?: string | null
           district: string
           full_name: string
           id?: string
@@ -114,7 +112,6 @@ export type Database = {
           constituency?: string
           created_at?: string
           crf_no?: string
-          date_of_birth?: string | null
           district?: string
           full_name?: string
           id?: string
@@ -124,6 +121,62 @@ export type Database = {
           photo_path?: string | null
           state?: string
           user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "membership_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_applications: {
+        Row: {
+          address: string
+          constituency: string
+          created_at: string
+          district: string
+          full_name: string
+          id: string
+          phone: string
+          photo_path: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string
+          status: string
+        }
+        Insert: {
+          address: string
+          constituency: string
+          created_at?: string
+          district: string
+          full_name: string
+          id?: string
+          phone: string
+          photo_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          status?: string
+        }
+        Update: {
+          address?: string
+          constituency?: string
+          created_at?: string
+          district?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          photo_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          status?: string
         }
         Relationships: []
       }

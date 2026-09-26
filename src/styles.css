@@ -60,6 +60,7 @@
   --color-surface: var(--surface);
   --font-display: "Marcellus", "Noto Serif Tamil", Georgia, serif;
   --font-sans: "Inter", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+  --font-tamil: "Anek Tamil", "Noto Sans Tamil", sans-serif;
   --shadow-elegant: 0 18px 40px -22px color-mix(in oklab, var(--primary) 55%, transparent);
   --shadow-card: 0 2px 0 0 color-mix(in oklab, var(--gold) 45%, transparent);
 }
