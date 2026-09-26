@@ -18,6 +18,92 @@ export interface EnrollmentInput {
   photo: File;
 }
 
+/** Thrown when a phone number already has a pending/approved application. */
+export class PhoneTakenError extends Error {
+  constructor() {
+    super("phone already has an active application");
+    this.name = "PhoneTakenError";
+  }
+}
+
+/** Result of the public `track_application` RPC, keyed by phone number. */
+export type TrackingResult =
+  | { status: "invalid" }
+  | { status: "not_found" }
+  | {
+      status: "pending" | "rejected";
+      fullName: string;
+      district: string;
+      constituency: string;
+      submittedAt: string;
+    }
+  | {
+      status: "approved";
+      fullName: string;
+      crfNo: string | null;
+      district: string;
+      constituency: string;
+      submittedAt: string;
+      publicToken: string | null;
+    };
+
+interface TrackRpcPayload {
+  status?: string;
+  full_name?: string | null;
+  crf_no?: string | null;
+  district?: string | null;
+  constituency?: string | null;
+  submitted_at?: string | null;
+  public_token?: string | null;
+}
+
+/**
+ * Public card tracking by the applicant's own mobile number. One active
+ * application per phone: pending and approved count; rejected frees the
+ * number. Approved results carry the card's public token so the existing
+ * /verify/<token> links and QR codes stay undisturbed.
+ */
+export async function trackApplication(phone: string): Promise<TrackingResult> {
+  const { data, error } = await supabase.rpc("track_application", { _phone: phone.trim() });
+  if (error) throw error;
+  const p = (data ?? {}) as TrackRpcPayload;
+  if (p.status === "invalid" || p.status === "not_found") {
+    return { status: p.status };
+  }
+  if (p.status === "pending" || p.status === "rejected") {
+    return {
+      status: p.status,
+      fullName: p.full_name ?? "",
+      district: p.district ?? "",
+      constituency: p.constituency ?? "",
+      submittedAt: p.submitted_at ?? "",
+    };
+  }
+  if (p.status === "approved") {
+    return {
+      status: "approved",
+      fullName: p.full_name ?? "",
+      crfNo: p.crf_no ?? null,
+      district: p.district ?? "",
+      constituency: p.constituency ?? "",
+      submittedAt: p.submitted_at ?? "",
+      publicToken: p.public_token ?? null,
+    };
+  }
+  return { status: "not_found" };
+}
+
+/**
+ * True when the phone number has no pending/approved application. Used by the
+ * enroll form for an instant "number already enrolled" message before any
+ * upload happens. Rejected applications release the number.
+ */
+export async function phoneCanApply(phone: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("phone_can_apply", { _phone: phone.trim() });
+  if (error) throw error;
+  return data === true;
+}
+
 /** Public verification payload — deliberately minimal (no phone, no address). */
 export interface CardVerification {
   valid: boolean;
@@ -57,7 +143,16 @@ export async function submitEnrollment(input: EnrollmentInput): Promise<void> {
     photo_path: path,
     status: "pending",
   });
-  if (error) throw error;
+  if (error) {
+    // The partial unique index (0002) allows only one pending/approved
+    // application per phone. Surface that as a typed error the form can show
+    // a friendly message for. (An orphaned photo in the private bucket is
+    // harmless — nothing references it without an application row.)
+    if (error.code === "23505" || /duplicate key|unique constraint/i.test(error.message)) {
+      throw new PhoneTakenError();
+    }
+    throw error;
+  }
 }
 
 /** Public, unauthenticated card verification by opaque token. */

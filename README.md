@@ -17,7 +17,7 @@ Tailwind CSS v4, and Lovable Cloud (Supabase: Postgres, Auth, Storage).
 | --- | --- | --- |
 | `/` | public | Hero, enrollment CTA, party and founder information |
 | `/enroll` | public | Enrollment form (state fixed to Tamil Nadu) |
-| `/card` | public | Enter a card code to open a membership card |
+| `/card` | public | Track a membership by mobile number: pending/rejected status, or open the card once approved |
 | `/verify/:token` | public | Card verification + rendered card (QR target) |
 | `/api/public/photo/:token` | public | Streams a member photo via a short-lived signed URL |
 
@@ -37,10 +37,12 @@ Roles are never stored on `profiles`. Checked through the `SECURITY DEFINER` fun
 `has_role(uuid, app_role)` and `is_admin()`.
 
 **`membership_applications`** — enrollment submissions.
-`full_name`, `phone` (10 digits, CHECK), `address`, `district`, `state`
-(CHECK `= 'Tamil Nadu'`), `constituency`, `date_of_birth` (DATE, CHECK 18+), `photo_path`, `status`
+`full_name`, `phone` (10 digits, CHECK — one active application per phone; a rejection
+releases the number), `address`, `district`, `state` (CHECK `= 'Tamil Nadu'`),
+`constituency`, `date_of_birth` (DATE, CHECK 18+), `photo_path`, `status`
 (CHECK `pending | approved | rejected`, default `pending`), `review_notes`,
-`reviewed_by`, `reviewed_at`. Indexed on `(status, created_at)`.
+`reviewed_by`, `reviewed_at`. Indexed on `(status, created_at)` and on `phone`
+for active applications.
 
 **`members`** — approved members only. `application_id` (unique FK), optional `user_id`
 (unique), `crf_no` (unique, generated), personal fields (including `date_of_birth`, copied
@@ -61,6 +63,8 @@ active template), `created_by`.
 | `reject_application(uuid, text)` | admins only | Marks a pending application rejected; rejected applications can never become members |
 | `generate_public_token()` | internal | Random, non-sequential card token from `gen_random_bytes` |
 | `verify_card(text)` | anon + authenticated | Public verification; returns only name, CRF, district, state, constituency, photo path, issue date and validity — never phone or address |
+| `track_application(text)` | anon + authenticated | Public tracking by mobile number; returns pending / rejected / approved for the most recent active application, with a minimal payload (no address, no review notes) and the card token once approved |
+| `phone_can_apply(text)` | anon + authenticated | True when the number has no pending/approved application; used by the enrollment form for an instant duplicate check |
 
 CRF numbers are issued by the database (`CRF-<year>-<sequence>`). Users can never choose or
 enter one.

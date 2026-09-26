@@ -241,6 +241,7 @@ export type Database = {
     Functions: {
       approve_application: { Args: { _application_id: string }; Returns: Json }
       generate_public_token: { Args: never; Returns: string }
+      phone_can_apply: { Args: { _phone: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -253,6 +254,7 @@ export type Database = {
         Args: { _application_id: string; _notes?: string }
         Returns: undefined
       }
+      track_application: { Args: { _phone: string }; Returns: Json }
       verify_card: { Args: { _token: string }; Returns: Json }
     }
     Enums: {

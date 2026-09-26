@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
 import { ALLOWED_PHOTO_TYPES, FIXED_STATE, MAX_PHOTO_BYTES, TAMIL_NADU_DISTRICTS } from "@/lib/constants";
-import { submitEnrollment } from "@/services/membership";
+import { PhoneTakenError, phoneCanApply, submitEnrollment } from "@/services/membership";
 
 export const Route = createFileRoute("/enroll")({
   head: () => ({
@@ -87,12 +87,26 @@ function EnrollPage() {
     setErrors(next);
     if (Object.keys(next).length > 0 || !photo) return;
 
+    // One active application per phone: rejected releases the number. Check
+    // before uploading so a duplicate gets a friendly message instead of a
+    // failed insert after the photo upload. The insert itself re-checks via a
+    // partial unique index, so two simultaneous submissions still cannot win.
     setSubmitting(true);
     try {
+      const available = await phoneCanApply(phone);
+      if (!available) {
+        setErrors({ phone: t("enroll.errors.phoneTaken") });
+        setSubmitting(false);
+        return;
+      }
       await submitEnrollment({ fullName, phone, address, district, constituency, dateOfBirth, photo });
       setDone(true);
-    } catch {
-      setFormError(t("enroll.errors.generic"));
+    } catch (error) {
+      if (error instanceof PhoneTakenError) {
+        setErrors({ phone: t("enroll.errors.phoneTaken") });
+      } else {
+        setFormError(t("enroll.errors.generic"));
+      }
     } finally {
       setSubmitting(false);
     }

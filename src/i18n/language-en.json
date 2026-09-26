@@ -72,15 +72,33 @@
       "constituency": "Please enter your constituency.",
       "dob": "Please enter your date of birth.",
       "dobAge": "You must be at least 18 years old.",
+      "phoneTaken": "This mobile number already has an application. Use it on the tracking page to check your status.",
       "photo": "Please upload a photo (JPG or PNG, max 5 MB).",
       "generic": "Could not submit your enrollment. Please try again."
     }
   },
   "card": {
-    "title": "View Member Card",
-    "subtitle": "Enter the card code from your membership card or QR link.",
-    "codeLabel": "Card code",
-    "codePlaceholder": "e.g. qUBeBsNnUySbA",
+    "title": "Track Your Membership",
+    "subtitle": "Enter the mobile number you enrolled with to check your application status and open your membership card.",
+    "phoneLabel": "Mobile number",
+    "phonePlaceholder": "10-digit mobile number",
+    "track": "Check status",
+    "status": {
+      "pending": "Application pending",
+      "pendingBody": "Your enrollment has been received and is awaiting review by the party office.",
+      "approved": "Membership approved",
+      "approvedBody": "Your membership card is ready.",
+      "rejected": "Application rejected",
+      "rejectedBody": "Your application was not approved. You can submit a new enrollment with this number.",
+      "districtLabel": "District · Constituency",
+      "submitted": "Submitted",
+      "viewCard": "View membership card",
+      "enrollAgain": "Submit a new enrollment"
+    },
+    "errors": {
+      "phone": "Enter a valid 10-digit mobile number.",
+      "notFound": "No active application found for this number. Rejected applications release the number — you can enroll again."
+    },
     "view": "View card",
     "notFound": "No membership card found for this code.",
     "loading": "Loading card...",
