@@ -204,7 +204,7 @@ function EnrollPage() {
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label={t("enroll.phone")} hint={t("enroll.phoneHint")} error={errors.phone}>
+            <Field label={t("enroll.phone")} error={errors.phone}>
               <input
                 name="phone"
                 type="tel"
@@ -221,7 +221,7 @@ function EnrollPage() {
               />
             </Field>
 
-            <Field label={t("enroll.dob")} hint={t("enroll.dobHint")} error={errors.dob}>
+            <Field label={t("enroll.dob")} error={errors.dob}>
               <input
                 name="dateOfBirth"
                 type="date"
@@ -233,7 +233,7 @@ function EnrollPage() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label={t("enroll.cpf")} hint={t("enroll.cpfHint")} error={errors.cpf}>
+            <Field label={t("enroll.cpf")} error={errors.cpf}>
               <input
                 name="cpfNo"
                 type="text"
@@ -305,7 +305,7 @@ function EnrollPage() {
             />
           </Field>
 
-          <Field label={t("enroll.photo")} hint={t("enroll.photoHint")} error={errors.photo}>
+          <Field label={t("enroll.photo")} error={errors.photo}>
             <input
               name="photo"
               type="file"
@@ -353,12 +353,10 @@ function EnrollPage() {
 
 function Field({
   label,
-  hint,
   error,
   children,
 }: {
   label: string;
-  hint?: string | undefined;
   error?: string | undefined;
   children: React.ReactNode;
 }) {
@@ -366,7 +364,6 @@ function Field({
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-foreground">{label}</span>
       {children}
-      {hint && !error ? <span className="mt-1 block text-xs text-muted-foreground">{hint}</span> : null}
       {error ? <span className="mt-1 block text-xs text-destructive">{error}</span> : null}
     </label>
   );
