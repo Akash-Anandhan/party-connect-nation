@@ -204,35 +204,6 @@ function EnrollPage() {
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label={t("enroll.phone")} error={errors.phone}>
-              <input
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                maxLength={10}
-                className={inputClass}
-                autoComplete="tel-national"
-                onInput={(event) => {
-                  // Live scrub (BUG-003): keep digits only, capped at 10.
-                  const input = event.currentTarget;
-                  const cleaned = onlyDigits(input.value).slice(0, 10);
-                  if (cleaned !== input.value) input.value = cleaned;
-                }}
-              />
-            </Field>
-
-            <Field label={t("enroll.dob")} error={errors.dob}>
-              <input
-                name="dateOfBirth"
-                type="date"
-                max={dobMax}
-                className={inputClass}
-                autoComplete="bday"
-              />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
             <Field label={t("enroll.cpf")} error={errors.cpf}>
               <input
                 name="cpfNo"
@@ -255,6 +226,45 @@ function EnrollPage() {
                 maxLength={70}
                 className={inputClass}
                 autoComplete="organization-title"
+              />
+            </Field>
+          </div>
+
+          <Field label={t("enroll.constituency")} error={errors.constituency}>
+            <input
+              type="text"
+              name="constituency"
+              maxLength={70}
+              className={inputClass}
+              autoComplete="off"
+            />
+          </Field>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label={t("enroll.dob")} error={errors.dob}>
+              <input
+                name="dateOfBirth"
+                type="date"
+                max={dobMax}
+                className={inputClass}
+                autoComplete="bday"
+              />
+            </Field>
+
+            <Field label={t("enroll.phone")} error={errors.phone}>
+              <input
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                className={inputClass}
+                autoComplete="tel-national"
+                onInput={(event) => {
+                  // Live scrub (BUG-003): keep digits only, capped at 10.
+                  const input = event.currentTarget;
+                  const cleaned = onlyDigits(input.value).slice(0, 10);
+                  if (cleaned !== input.value) input.value = cleaned;
+                }}
               />
             </Field>
           </div>
@@ -294,16 +304,6 @@ function EnrollPage() {
               />
             </Field>
           </div>
-
-          <Field label={t("enroll.constituency")} error={errors.constituency}>
-            <input
-              type="text"
-              name="constituency"
-              maxLength={70}
-              className={inputClass}
-              autoComplete="off"
-            />
-          </Field>
 
           <Field label={t("enroll.photo")} error={errors.photo}>
             <input
