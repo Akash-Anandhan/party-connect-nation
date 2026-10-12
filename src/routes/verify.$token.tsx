@@ -7,7 +7,7 @@ import { MembershipCard } from "@/components/MembershipCard";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useI18n } from "@/i18n";
 import { downloadCardPdf } from "@/lib/card-download";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateOfBirthForCard } from "@/lib/format";
 import { memberPhotoUrl, verifyCard } from "@/services/membership";
 
 export const Route = createFileRoute("/verify/$token")({
@@ -82,7 +82,7 @@ function VerifyPage() {
             member_number: String(data.member_number).padStart(6, "0"),
             cpf_no: data.cpf_no,
             posting: data.posting ?? "",
-            date_of_birth: data.date_of_birth ?? "",
+            date_of_birth: formatDateOfBirthForCard(data.date_of_birth),
             district: data.district,
             state: data.state,
             constituency: data.constituency,

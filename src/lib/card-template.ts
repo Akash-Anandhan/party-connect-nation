@@ -1,3 +1,5 @@
+import { formatDateOfBirthForCard } from "@/lib/format";
+
 /**
  * Membership card template system.
  *
@@ -165,7 +167,7 @@ export const PREVIEW_VALUES: CardValues = {
   member_number: "000042",
   cpf_no: "CPF-2026-001001",
   posting: "Member",
-  date_of_birth: "1990-06-15",
+  date_of_birth: formatDateOfBirthForCard("1990-06-15"),
   phone: "9000000000",
   address: "12, Gandhi Street, Anna Nagar",
   district: "Madurai",
