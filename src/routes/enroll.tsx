@@ -9,7 +9,6 @@ import {
   ALLOWED_PHOTO_TYPES,
   FIXED_STATE,
   MAX_PHOTO_BYTES,
-  TAMIL_NADU_DISTRICTS,
 } from "@/lib/constants";
 import {
   CpfTakenError,
@@ -25,7 +24,7 @@ export const Route = createFileRoute("/enroll")({
       {
         name: "description",
         content:
-          "Enroll as a party member with your name, phone, address, district, constituency and photo. Tamil Nadu only. Your membership card is issued instantly.",
+          "Enroll as a party member with your name, phone, address, division, constituency and photo. Tamil Nadu only. Your membership card is issued instantly.",
       },
       { property: "og:title", content: "Enroll as a Member — NLCTVS" },
       {
@@ -93,7 +92,6 @@ function EnrollPage() {
   const [submitting, setSubmitting] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoNote, setPhotoNote] = useState<string | null>(null);
-  const [district, setDistrict] = useState("");
   // Date-picker ceiling: applicants must already be 18 (today minus 18 years).
   const [dobMax] = useState(() => {
     const cutoff = new Date();
@@ -109,7 +107,7 @@ function EnrollPage() {
     const fullName = String(form.get("fullName") ?? "").trim();
     const phone = String(form.get("phone") ?? "").trim();
     const address = String(form.get("address") ?? "").trim();
-    const district = String(form.get("district") ?? "");
+    const district = String(form.get("district") ?? "").trim();
     const constituency = String(form.get("constituency") ?? "").trim();
     const dateOfBirth = String(form.get("dateOfBirth") ?? "");
     const cpfNo = String(form.get("cpfNo") ?? "").trim();
@@ -275,23 +273,14 @@ function EnrollPage() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label={t("enroll.district")} error={errors.district}>
-              <select
+              <input
                 name="district"
+                type="text"
+                maxLength={70}
+                placeholder={t("enroll.districtSelect")}
                 className={inputClass}
-                value={district}
-                onChange={(event) => {
-                  setDistrict(event.target.value);
-                }}
-              >
-                <option value="" disabled>
-                  {t("enroll.districtSelect")}
-                </option>
-                {TAMIL_NADU_DISTRICTS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+                autoComplete="off"
+              />
             </Field>
 
             <Field label={t("enroll.state")}>

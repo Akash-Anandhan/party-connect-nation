@@ -125,7 +125,7 @@ export const STARTER_TEMPLATE = `<!--
       <div><b>Date of birth:</b> {{date_of_birth}}</div>
       <div><b>Phone:</b> {{phone}}</div>
       <div><b>Address:</b> {{address}}</div>
-      <div><b>District:</b> {{district}}</div>
+      <div><b>Division:</b> {{district}}</div>
       <div><b>Constituency:</b> {{constituency}}</div>
       <div><b>State:</b> {{state}}</div>
     </div>
